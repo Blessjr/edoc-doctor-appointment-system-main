@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="css/animations.css">      
+<link rel="stylesheet" href="css/main.css">      
+<link rel="stylesheet" href="css/index.css">
+<title>DOCTO LINK</title>
+<style>
+    table{ animation: transitionIn-Y-bottom 0.5s; }
+    .chat-toggle { position: fixed; bottom: 20px; right: 20px; background: #007bff; color: white; border: none; border-radius: 25px; padding: 15px 20px; cursor: pointer; font-size: 14px; z-index: 1000; box-shadow: 0 2px 10px rgba(0,123,255,0.3); }
+    .chat-widget { position: fixed; bottom: 80px; right: 20px; width: 350px; height: 450px; background: white; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 1001; display: flex; flex-direction: column; }
+    .chat-widget.hidden { display: none; }
+    .chat-header { background: #007bff; color: white; padding: 15px; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center; }
+    .chat-header h4 { margin: 0; font-size: 16px; }
+    #chat-close { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
+    .chat-messages { flex: 1; padding: 15px; overflow-y: auto; background: #f8f9fa; }
+    .message { margin: 10px 0; padding: 10px; border-radius: 10px; max-width: 80%; }
+    .user-message { background: #007bff; color: white; margin-left: auto; text-align: right; }
+    .ai-message { background: white; border: 1px solid #ddd; }
+    .chat-input { padding: 15px; border-top: 1px solid #ddd; display: flex; gap: 10px; align-items: center; }
+    #chat-input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
+    #chat-input:focus { border-color: #0056b3; }
+    #chat-send { background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 20px; cursor: pointer; }
+    #chat-send:hover { background: #0056b3; }
+    .footer-hashen { text-align: center; margin-top: 40px; font-weight: 300; }
+</style>
+</head>
+<body>
+
+<!-- Chatbot Widget -->
+<div id="chat-widget" class="chat-widget hidden">
+    <div class="chat-header">
+        <h4>🏥 Assistant DOCTO LINK</h4>
+        <button id="chat-close">×</button>
+    </div>
+    <div id="chat-messages" class="chat-messages">
+        <div class="message ai-message">
+            Bienvenue au centre médical DOCTO LINK ! Comment puis-je vous aider aujourd'hui ?
+            <br><small><em>Je peux aider avec les informations générales, les rendez-vous et les services.</em></small>
+        </div>
+    </div>
+    <div class="chat-input">
+        <input type="text" id="chat-input" placeholder="Posez votre question sur nos services..." />
+        <button id="chat-send">Envoyer</button>
+    </div>
+</div>
+<button id="chat-toggle" class="chat-toggle">💬 Besoin d'aide ?</button>
+
+<div class="full-height">
+<center>
+<table border="0">
+    <tr>
+        <td width="80%">
+            <font class="edoc-logo">DOCTO LINK. </font>
+            <font class="edoc-logo-sub">| LE PROJET D'ÉCHANELLING</font>
+        </td>
+        <td width="10%">
+           <a href="login.php" class="non-style-link"><p class="nav-item">CONNEXION</p></a>
+        </td>
+        <td width="10%">
+            <a href="signup.php" class="non-style-link"><p class="nav-item" style="padding-right: 10px;">S'INSCRIRE</p></a>
+        </td>
+    </tr>
+    <tr><td colspan="3"><p class="heading-text">Évitez les tracas et les retards.</p></td></tr>
+    <tr>
+        <td colspan="3">
+            <p class="sub-text2">Comment se sent la santé aujourd'hui ? On dirait que ce n'est pas bon !<br>Ne vous inquiétez pas. Trouvez votre médecin en ligne et prenez rendez-vous comme vous le souhaitez avec DOCTO LINK.<br>
+            Nous vous offrons un service gratuit de consultation médicale en ligne. Prenez rendez-vous maintenant.</p>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3">
+            <center>
+            <a href="login.php">
+                <input type="button" value="Prendre rendez-vous" class="login-btn btn-primary btn" style="padding: 10px 25px;">
+            </a>
+            </center>
+        </td>
+    </tr>
+</table>
+<p class="sub-text2 footer-hashen">Une solution Web par Beyoncé.</p>
+</center>
+</div>
+
+<script>
+// Chatbot JS uniquement côté client
+let chatOpen = false;
+document.getElementById('chat-toggle').addEventListener('click', function() {
+    const widget = document.getElementById('chat-widget');
+    const button = this;
+    if(chatOpen) {
+        widget.classList.add('hidden');
+        button.textContent = '💬 Assistance IA';
+        chatOpen = false;
+    } else {
+        widget.classList.remove('hidden');
+        button.textContent = '💬 Fermer';
+        chatOpen = true;
+        document.getElementById('chat-input').focus();
+    }
+});
+document.getElementById('chat-close').addEventListener('click', function() {
+    document.getElementById('chat-widget').classList.add('hidden');
+    document.getElementById('chat-toggle').textContent = '💬 Assistance IA';
+    chatOpen = false;
+});
+
+document.getElementById('chat-send').addEventListener('click', sendMessage);
+document.getElementById('chat-input').addEventListener('keypress', function(e){
+    if(e.key === 'Enter') sendMessage();
+});
+
+function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const message = input.value.trim();
+    if(!message) return;
+    addMessage(message, 'user');
+    input.value = '';
+
+    // Réponse simple JS (local)
+    let response = "Je suis désolé, je n'ai pas compris. Pouvez-vous reformuler ?";
+    const msg = message.toLowerCase();
+    if(msg.includes('rendez-vous')) response = "Vous pouvez prendre rendez-vous en vous connectant sur votre compte ou en utilisant le bouton 'Prendre rendez-vous'.";
+    else if(msg.includes('services')) response = "DOCTO LINK offre des consultations médicales en ligne, des prises de rendez-vous et un suivi médical.";
+    else if(msg.includes('médecin')) response = "Pour trouver un médecin, précisez la spécialité ou consultez notre liste sur la plateforme.";
+    else if(msg.includes('horaires') || msg.includes('heures')) response = "Les médecins sont disponibles de 8h00 à 18h00 du lundi au vendredi et de 9h00 à 14h00 le samedi.";
+    else if(msg.includes('contact') || msg.includes('joindre')) response = "Contactez-nous par email à contact@doctolink.com ou par téléphone au +237 6 70 00 00 00.";
+    else if(msg.includes('bonjour') || msg.includes('salut')) response = "Bonjour ! Comment puis-je vous aider aujourd'hui ?";
+
+    addMessage(response, 'ai');
+}
+
+function addMessage(text, sender){
+    const messagesDiv = document.getElementById('chat-messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}-message`;
+    messageDiv.innerHTML = text;
+    messagesDiv.appendChild(messageDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+</script>
+</body>
+</html>
