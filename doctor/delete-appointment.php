@@ -13,7 +13,7 @@
     
     
     if($_GET){
-        //import database
+        //importer la base de données
         include("../connection.php");
         $id=$_GET["id"];
         //$result001= $database->query("select * from schedule where scheduleid=$id;");
