@@ -393,7 +393,7 @@ $list11 = $database->query("select docname,docemail from doctor;");
         </div>
         <div id="chat-messages" class="chat-messages">
             <div class="message ai-message">
-                Bonjour Administrateur ! Je suis votre assistant EDOC. Comment puis-je vous aider aujourd'hui ?
+                Bonjour Administrateur ! Je suis votre assistant DOCTOLINK. Comment puis-je vous aider aujourd'hui ?
                 <br><small><em>Note : Ceci est à des fins d'information uniquement. Consultez toujours des professionnels de la santé pour des conseils médicaux.</em></small>
             </div>
         </div>

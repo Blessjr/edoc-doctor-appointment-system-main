@@ -262,7 +262,7 @@ if($_GET){
             <div class="popup">
                 <center>
                     <a class="close" href="doctors.php">&times;</a>
-                    <div class="content">eDoc Web App</div>
+                    <div class="content">DOCTOLINK Web App</div>
                     <table width="80%" class="sub-table scrolldown add-doc-form-container" border="0">
                         <tr><td colspan="2"><p style="font-size:25px;font-weight:500;">Voir les détails</p><br><br></td></tr>
                         <tr><td colspan="2">Nom : '.$name.'<br><br></td></tr>

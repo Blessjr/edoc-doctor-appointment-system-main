@@ -286,12 +286,12 @@ if($result->num_rows == 0){
 <!-- CHATBOT SIMPLE INLINE -->
 <div id="chat-widget" class="chat-widget hidden">
     <div class="chat-header">
-        <h4>🏥 Assistant IA EDOC</h4>
+        <h4>🏥 Assistant IA DOCTOLINK</h4>
         <button id="chat-close">×</button>
     </div>
     <div id="chat-messages" class="chat-messages">
         <div class="message ai-message">
-            Bonjour Dr. <?php echo $username; ?> ! Je suis votre assistant EDOC. Comment puis-je vous aider aujourd'hui ?
+            Bonjour Dr. <?php echo $username; ?> ! Je suis votre assistant DOCTOLINK. Comment puis-je vous aider aujourd'hui ?
         </div>
     </div>
     <div class="chat-input">
@@ -488,7 +488,7 @@ function getAIResponse(message) {
         return 'Vos prochaines sessions sont affichées sur ce tableau de bord. Consultez "Mes Sessions" pour la gestion complète du planning.';
     }
     if (msg.includes('bonjour') || msg.includes('salut')) {
-        return 'Bonjour Docteur ! Je suis là pour vous aider à naviguer dans EDOC et répondre à vos questions sur votre pratique.';
+        return 'Bonjour Docteur ! Je suis là pour vous aider à naviguer dans DOCTOLINK et répondre à vos questions sur votre pratique.';
     }
     
     return 'Merci pour votre question ! Je peux vous aider avec les rendez-vous, la gestion des patients, les plannings et la navigation dans le système. Que souhaitez-vous savoir ?';

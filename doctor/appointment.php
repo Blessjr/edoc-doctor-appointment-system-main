@@ -616,7 +616,7 @@
                         <h2></h2>
                         <a class="close" href="doctors.php">&times;</a>
                         <div class="content">
-                            Application Web eDoc<br>
+                            Application Web DOCTOLINK<br>
                             
                         </div>
                         <div style="display: flex;justify-content: center;">

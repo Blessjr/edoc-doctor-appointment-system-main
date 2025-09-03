@@ -266,12 +266,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST["search"])) {
 <!-- CHATBOT WIDGET -->
 <div id="chat-widget" class="chat-widget hidden">
     <div class="chat-header">
-        <h4>🏥 Assistant IA EDOC</h4>
+        <h4>🏥 Assistant IA DOCTOLINK</h4>
         <button id="chat-close">×</button>
     </div>
     <div id="chat-messages" class="chat-messages">
         <div class="message ai-message">
-            Bonjour Infirmière <?php echo $username; ?> ! Je suis votre assistant EDOC. Comment puis-je vous aider aujourd'hui ?
+            Bonjour Infirmière <?php echo $username; ?> ! Je suis votre assistant DOCTOLINK. Comment puis-je vous aider aujourd'hui ?
             <br><small><em>Note : Ceci est à titre informatif uniquement. Consultez toujours des professionnels de santé pour des conseils médicaux.</em></small>
         </div>
     </div>
