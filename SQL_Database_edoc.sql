@@ -274,3 +274,37 @@ CREATE TABLE chat_sessions (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS prescriptions (
+    prescription_id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT NOT NULL,
+    doctor_id INT NOT NULL,
+    appointment_id INT,
+    prescription_date DATE NOT NULL,
+    medication_name VARCHAR(255) NOT NULL,
+    dosage VARCHAR(100) NOT NULL,
+    frequency VARCHAR(100) NOT NULL,
+    duration VARCHAR(100) NOT NULL,
+    instructions TEXT,
+    status ENUM('active', 'completed', 'cancelled') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (patient_id) REFERENCES patient(pid),
+    FOREIGN KEY (doctor_id) REFERENCES doctor(docid),
+    FOREIGN KEY (appointment_id) REFERENCES appointment(appoid)
+) ENGINE=InnoDB;
+
+
+-- Table for medical notes
+CREATE TABLE IF NOT EXISTS medical_notes (
+    note_id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT NOT NULL,
+    doctor_id INT NOT NULL,
+    appointment_id INT,
+    note_date DATE NOT NULL,
+    note_type ENUM('diagnosis', 'observation', 'treatment', 'follow_up') DEFAULT 'observation',
+    note_text TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (patient_id) REFERENCES patient(pid),
+    FOREIGN KEY (doctor_id) REFERENCES doctor(docid),
+    FOREIGN KEY (appointment_id) REFERENCES appointment(appoid)
+);
