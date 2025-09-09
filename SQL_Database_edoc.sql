@@ -275,6 +275,8 @@ CREATE TABLE chat_sessions (
     last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- Add these tables to your existing SQL_Database_edoc.sql
+
 CREATE TABLE IF NOT EXISTS prescriptions (
     prescription_id INT AUTO_INCREMENT PRIMARY KEY,
     patient_id INT NOT NULL,
@@ -288,11 +290,10 @@ CREATE TABLE IF NOT EXISTS prescriptions (
     instructions TEXT,
     status ENUM('active', 'completed', 'cancelled') DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (patient_id) REFERENCES patient(pid),
-    FOREIGN KEY (doctor_id) REFERENCES doctor(docid),
-    FOREIGN KEY (appointment_id) REFERENCES appointment(appoid)
+    FOREIGN KEY (patient_id) REFERENCES patient(pid) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (doctor_id) REFERENCES doctor(docid) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (appointment_id) REFERENCES appointment(appoid) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB;
-
 
 -- Table for medical notes
 CREATE TABLE IF NOT EXISTS medical_notes (
@@ -304,7 +305,7 @@ CREATE TABLE IF NOT EXISTS medical_notes (
     note_type ENUM('diagnosis', 'observation', 'treatment', 'follow_up') DEFAULT 'observation',
     note_text TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (patient_id) REFERENCES patient(pid),
-    FOREIGN KEY (doctor_id) REFERENCES doctor(docid),
-    FOREIGN KEY (appointment_id) REFERENCES appointment(appoid)
-);
+    FOREIGN KEY (patient_id) REFERENCES patient(pid) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (doctor_id) REFERENCES doctor(docid) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (appointment_id) REFERENCES appointment(appoid) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB;
