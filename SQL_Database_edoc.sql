@@ -341,24 +341,22 @@ CREATE TABLE IF NOT EXISTS `medical_notes` (
 -- Table structure for table `notifications`
 --
 
-CREATE TABLE IF NOT EXISTS `notifications` (
-    `notification_id` INT AUTO_INCREMENT PRIMARY KEY,
-    `user_id` INT NOT NULL,
-    `user_type` ENUM('patient', 'doctor', 'admin') NOT NULL,
-    `title` VARCHAR(255) NOT NULL,
-    `message` TEXT NOT NULL,
-    `type` ENUM('appointment', 'prescription', 'medical_note', 'system', 'reminder') DEFAULT 'system',
-    `related_id` INT DEFAULT NULL COMMENT 'ID of related record (appointment_id, prescription_id, etc.)',
-    `is_read` TINYINT(1) DEFAULT 0 COMMENT '0=unread, 1=read',
-    `priority` ENUM('low', 'medium', 'high') DEFAULT 'medium',
-    `expiry_date` DATETIME DEFAULT NULL COMMENT 'When notification should expire',
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `read_at` TIMESTAMP NULL DEFAULT NULL,
-    INDEX `idx_user` (`user_id`, `user_type`),
-    INDEX `idx_read_status` (`is_read`),
-    INDEX `idx_created_at` (`created_at`),
-    INDEX `idx_type` (`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS notifications (
+    notification_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    user_type ENUM('patient', 'doctor', 'admin', 'all') NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    type ENUM('appointment', 'prescription', 'medical_note', 'system', 'reminder') DEFAULT 'system',
+    related_id INT DEFAULT NULL,
+    is_read TINYINT(1) DEFAULT 0,
+    priority ENUM('low', 'medium', 'high') DEFAULT 'medium',
+    expiry_date DATETIME DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    read_at TIMESTAMP NULL DEFAULT NULL,
+    INDEX idx_user (user_id, user_type),
+    INDEX idx_read_status (is_read)
+)ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 COMMIT;
 

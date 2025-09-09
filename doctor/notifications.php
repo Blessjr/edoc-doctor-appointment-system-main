@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notification Center</title>
+    <title>Centre de Notifications</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -121,51 +121,51 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h1 class="h3 text-gray-800"><i class="fas fa-bell me-2"></i>Notification Center</h1>
+                    <h1 class="h3 text-gray-800"><i class="fas fa-bell me-2"></i>Centre de Notifications</h1>
                     <div>
                         <button class="btn btn-outline-primary btn-sm" id="markAllRead">
-                            <i class="fas fa-check-double me-1"></i> Mark all as read
+                            <i class="fas fa-check-double me-1"></i> Tout marquer comme lu
                         </button>
                         <button class="btn btn-outline-secondary btn-sm ms-2" id="refreshNotifications">
-                            <i class="fas fa-sync-alt me-1"></i> Refresh
+                            <i class="fas fa-sync-alt me-1"></i> Actualiser
                         </button>
                     </div>
                 </div>
                 
-                <!-- Filter Section -->
+                <!-- Section Filtres -->
                 <div class="card shadow mb-4">
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6 mb-2">
-                                <label class="form-label">Filter by type:</label>
+                                <label class="form-label">Filtrer par type :</label>
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <button type="button" class="btn btn-outline-primary filter-btn active" data-filter="all">All</button>
-                                    <button type="button" class="btn btn-outline-primary filter-btn" data-filter="appointment">Appointment</button>
-                                    <button type="button" class="btn btn-outline-primary filter-btn" data-filter="prescription">Prescription</button>
-                                    <button type="button" class="btn btn-outline-primary filter-btn" data-filter="medical_note">Medical Note</button>
-                                    <button type="button" class="btn btn-outline-primary filter-btn" data-filter="reminder">Reminder</button>
-                                    <button type="button" class="btn btn-outline-primary filter-btn" data-filter="system">System</button>
+                                    <button type="button" class="btn btn-outline-primary filter-btn active" data-filter="all">Tous</button>
+                                    <button type="button" class="btn btn-outline-primary filter-btn" data-filter="appointment">Rendez-vous</button>
+                                    <button type="button" class="btn btn-outline-primary filter-btn" data-filter="prescription">Ordonnance</button>
+                                    <button type="button" class="btn btn-outline-primary filter-btn" data-filter="medical_note">Note Médicale</button>
+                                    <button type="button" class="btn btn-outline-primary filter-btn" data-filter="reminder">Rappel</button>
+                                    <button type="button" class="btn btn-outline-primary filter-btn" data-filter="system">Système</button>
                                 </div>
                             </div>
                             <div class="col-md-6 mb-2">
-                                <label class="form-label">Filter by status:</label>
+                                <label class="form-label">Filtrer par statut :</label>
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <button type="button" class="btn btn-outline-primary status-filter-btn active" data-status="all">All</button>
-                                    <button type="button" class="btn btn-outline-primary status-filter-btn" data-status="unread">Unread</button>
-                                    <button type="button" class="btn btn-outline-primary status-filter-btn" data-status="read">Read</button>
+                                    <button type="button" class="btn btn-outline-primary status-filter-btn active" data-status="all">Tous</button>
+                                    <button type="button" class="btn btn-outline-primary status-filter-btn" data-status="unread">Non lus</button>
+                                    <button type="button" class="btn btn-outline-primary status-filter-btn" data-status="read">Lus</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Notifications List -->
+                <!-- Liste des Notifications -->
                 <div class="card shadow">
                     <div class="card-body">
                         <div id="notifications-container">
                             <div class="loading-spinner">
                                 <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading notifications...</span>
+                                    <span class="visually-hidden">Chargement des notifications...</span>
                                 </div>
                             </div>
                         </div>
@@ -179,10 +179,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             let notifications = [];
-            let currentUserId = 1; // This should be set based on the logged-in user
-            let currentUserType = 'patient'; // This should be set based on the logged-in user
+            let currentUserId = 1; // Devrait être basé sur l'utilisateur connecté
+            let currentUserType = 'patient'; // Devrait être basé sur l'utilisateur connecté
 
-            // Show toast notification
+            // Afficher une notification toast
             function showToast(message, type = 'info') {
                 const toastContainer = document.querySelector('.toast-container');
                 const toastId = 'toast-' + Date.now();
@@ -199,7 +199,7 @@
                         <div class="toast-body">
                             ${message}
                         </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
                     </div>
                 `;
                 
@@ -208,23 +208,23 @@
                 const toast = new bootstrap.Toast(toastEl);
                 toast.show();
                 
-                // Remove toast from DOM after it's hidden
+                // Supprimer le toast du DOM après sa disparition
                 toastEl.addEventListener('hidden.bs.toast', function() {
                     toastEl.remove();
                 });
             }
 
-            // Fetch notifications from the server
+            // Récupérer les notifications depuis le serveur
             function fetchNotifications() {
                 document.getElementById('notifications-container').innerHTML = `
                     <div class="loading-spinner">
                         <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading notifications...</span>
+                            <span class="visually-hidden">Chargement des notifications...</span>
                         </div>
                     </div>
                 `;
                 
-                // In a real implementation, this would be an AJAX call to your server
+                // Dans une implémentation réelle, ce serait un appel AJAX à votre serveur
                 fetch('get_notifications.php?user_id=' + currentUserId + '&user_type=' + currentUserType)
                     .then(response => response.json())
                     .then(data => {
@@ -232,62 +232,62 @@
                         renderNotifications();
                     })
                     .catch(error => {
-                        console.error('Error fetching notifications:', error);
+                        console.error('Erreur lors de la récupération des notifications:', error);
                         document.getElementById('notifications-container').innerHTML = `
                             <div class="empty-state">
                                 <i class="fas fa-exclamation-triangle"></i>
-                                <h4>Error Loading Notifications</h4>
-                                <p>Unable to load notifications. Please try again later.</p>
-                                <button class="btn btn-primary mt-2" onclick="fetchNotifications()">Retry</button>
+                                <h4>Erreur de Chargement des Notifications</h4>
+                                <p>Impossible de charger les notifications. Veuillez réessayer plus tard.</p>
+                                <button class="btn btn-primary mt-2" onclick="fetchNotifications()">Réessayer</button>
                             </div>
                         `;
                     });
             }
 
-            // Render notifications
+            // Afficher les notifications
             function renderNotifications(filter = 'all', status = 'all') {
                 const container = document.getElementById('notifications-container');
                 let filteredNotifications = notifications;
                 
-                // Apply type filter
+                // Appliquer le filtre de type
                 if (filter !== 'all') {
                     filteredNotifications = filteredNotifications.filter(notification => notification.type === filter);
                 }
                 
-                // Apply status filter
+                // Appliquer le filtre de statut
                 if (status !== 'all') {
                     const readStatus = status === 'read' ? 1 : 0;
                     filteredNotifications = filteredNotifications.filter(notification => notification.is_read === readStatus);
                 }
                 
-                // Clear container
+                // Vider le conteneur
                 container.innerHTML = '';
                 
-                // Check if there are notifications to display
+                // Vérifier s'il y a des notifications à afficher
                 if (filteredNotifications.length === 0) {
                     container.innerHTML = `
                         <div class="empty-state">
                             <i class="fas fa-bell-slash"></i>
-                            <h4>No notifications found</h4>
-                            <p>There are no notifications matching your current filters.</p>
+                            <h4>Aucune notification trouvée</h4>
+                            <p>Aucune notification ne correspond à vos filtres actuels.</p>
                         </div>
                     `;
                     return;
                 }
                 
-                // Add notifications to container
+                // Ajouter les notifications au conteneur
                 filteredNotifications.forEach(notification => {
                     const notificationElement = createNotificationElement(notification);
                     container.appendChild(notificationElement);
                 });
             }
             
-            // Create notification HTML element
+            // Créer un élément HTML de notification
             function createNotificationElement(notification) {
                 const div = document.createElement('div');
                 div.className = `notification-card card mb-3 notification-${notification.type} ${notification.priority === 'high' ? 'priority-high' : ''} ${!notification.is_read ? 'notification-unread' : ''}`;
                 
-                // Format the date
+                // Formater la date
                 const date = new Date(notification.created_at);
                 const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 
@@ -299,15 +299,15 @@
                                     <h5 class="card-title mb-1">${notification.title}</h5>
                                     <div>
                                         ${notification.priority !== 'low' ? `<span class="badge bg-${notification.priority === 'high' ? 'danger' : 'warning'} badge-priority">${notification.priority}</span>` : ''}
-                                        ${!notification.is_read ? '<span class="badge bg-primary badge-priority">Unread</span>' : ''}
+                                        ${!notification.is_read ? '<span class="badge bg-primary badge-priority">Non lu</span>' : ''}
                                     </div>
                                 </div>
                                 <p class="card-text">${notification.message}</p>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <small class="notification-time"><i class="far fa-clock me-1"></i> ${formattedDate}</small>
                                     <div>
-                                        ${notification.related_id ? `<button class="btn btn-sm btn-outline-primary view-related" data-id="${notification.related_id}">View Details</button>` : ''}
-                                        ${!notification.is_read ? `<button class="btn btn-sm btn-outline-success mark-read" data-id="${notification.notification_id}">Mark as Read</button>` : ''}
+                                        ${notification.related_id ? `<button class="btn btn-sm btn-outline-primary view-related" data-id="${notification.related_id}">Voir les détails</button>` : ''}
+                                        ${!notification.is_read ? `<button class="btn btn-sm btn-outline-success mark-read" data-id="${notification.notification_id}">Marquer comme lu</button>` : ''}
                                     </div>
                                 </div>
                             </div>
@@ -318,7 +318,7 @@
                 return div;
             }
             
-            // Mark a notification as read
+            // Marquer une notification comme lue
             function markNotificationAsRead(notificationId) {
                 fetch('mark_notification_read.php', {
                     method: 'POST',
@@ -330,35 +330,35 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Update local data
+                        // Mettre à jour les données locales
                         const notification = notifications.find(n => n.notification_id == notificationId);
                         if (notification) {
                             notification.is_read = 1;
                         }
                         
-                        // Re-render notifications
+                        // Réafficher les notifications
                         renderNotifications(
                             document.querySelector('.filter-btn.active').getAttribute('data-filter'),
                             document.querySelector('.status-filter-btn.active').getAttribute('data-status')
                         );
                         
-                        showToast('Notification marked as read', 'success');
+                        showToast('Notification marquée comme lue', 'success');
                     } else {
-                        showToast('Error marking notification as read: ' + data.message, 'danger');
+                        showToast('Erreur lors du marquage de la notification comme lue: ' + data.message, 'danger');
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    showToast('Error marking notification as read', 'danger');
+                    console.error('Erreur:', error);
+                    showToast('Erreur lors du marquage de la notification comme lue', 'danger');
                 });
             }
             
-            // Mark all notifications as read
+            // Marquer toutes les notifications comme lues
             function markAllNotificationsAsRead() {
                 const unreadNotifications = notifications.filter(n => !n.is_read);
                 
                 if (unreadNotifications.length === 0) {
-                    showToast('All notifications are already marked as read', 'info');
+                    showToast('Toutes les notifications sont déjà marquées comme lues', 'info');
                     return;
                 }
                 
@@ -374,31 +374,31 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Update local data
+                        // Mettre à jour les données locales
                         notifications.forEach(notification => {
                             if (!notification.is_read) {
                                 notification.is_read = 1;
                             }
                         });
                         
-                        // Re-render notifications
+                        // Réafficher les notifications
                         renderNotifications(
                             document.querySelector('.filter-btn.active').getAttribute('data-filter'),
                             document.querySelector('.status-filter-btn.active').getAttribute('data-status')
                         );
                         
-                        showToast(`Marked ${unreadNotifications.length} notifications as read`, 'success');
+                        showToast(`${unreadNotifications.length} notifications marquées comme lues`, 'success');
                     } else {
-                        showToast('Error marking notifications as read: ' + data.message, 'danger');
+                        showToast('Erreur lors du marquage des notifications comme lues: ' + data.message, 'danger');
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    showToast('Error marking notifications as read', 'danger');
+                    console.error('Erreur:', error);
+                    showToast('Erreur lors du marquage des notifications comme lues', 'danger');
                 });
             }
             
-            // Filter buttons event listeners
+            // Écouteurs d'événements pour les boutons de filtre
             document.querySelectorAll('.filter-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
@@ -409,7 +409,7 @@
                 });
             });
             
-            // Status filter buttons event listeners
+            // Écouteurs d'événements pour les boutons de filtre de statut
             document.querySelectorAll('.status-filter-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     document.querySelectorAll('.status-filter-btn').forEach(btn => btn.classList.remove('active'));
@@ -420,35 +420,35 @@
                 });
             });
             
-            // Mark all as read button
+            // Bouton "Tout marquer comme lu"
             document.getElementById('markAllRead').addEventListener('click', function() {
-                if (confirm('Are you sure you want to mark all notifications as read?')) {
+                if (confirm('Êtes-vous sûr de vouloir marquer toutes les notifications comme lues ?')) {
                     markAllNotificationsAsRead();
                 }
             });
             
-            // Refresh button
+            // Bouton "Actualiser"
             document.getElementById('refreshNotifications').addEventListener('click', function() {
                 fetchNotifications();
-                showToast('Refreshing notifications...', 'info');
+                showToast('Actualisation des notifications...', 'info');
             });
             
-            // Event delegation for dynamic buttons
+            // Délégation d'événements pour les boutons dynamiques
             document.getElementById('notifications-container').addEventListener('click', function(e) {
-                // Mark as read button
+                // Bouton "Marquer comme lu"
                 if (e.target.classList.contains('mark-read')) {
                     const id = parseInt(e.target.getAttribute('data-id'));
                     markNotificationAsRead(id);
                 }
                 
-                // View related button
+                // Bouton "Voir les détails"
                 if (e.target.classList.contains('view-related')) {
                     const relatedId = e.target.getAttribute('data-id');
-                    alert(`In a real implementation, this would take you to the details page for ID: ${relatedId}`);
+                    alert(`Dans une implémentation réelle, cela vous mènerait à la page de détails pour l'ID: ${relatedId}`);
                 }
             });
             
-            // Initial fetch of notifications
+            // Récupération initiale des notifications
             fetchNotifications();
         });
     </script>

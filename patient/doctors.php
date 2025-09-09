@@ -133,9 +133,9 @@ $username=$userfetch["pname"];
                 </td>
             </tr>
             <?php
-            if($_POST){
-                $keyword=$_POST["search"];
-                $sqlmain= "select * from doctor where docemail='$keyword' or docname='$keyword' or docname like '$keyword%' or docname like '%$keyword' or docname like '%$keyword%'";
+           if(isset($_POST["search"])){
+                $keyword = $database->real_escape_string($_POST["search"]);
+                $sqlmain= "select * from doctor where docemail='$keyword' or docname='$keyword'...";
             }else{
                 $sqlmain= "select * from doctor order by docid desc";
             }

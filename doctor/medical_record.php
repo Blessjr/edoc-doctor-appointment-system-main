@@ -13,15 +13,21 @@ $userfetch = $userrow->fetch_assoc();
 $userid = $userfetch["docid"];
 $username = $userfetch["docname"];
 
+// Check for prescription success message
+if(isset($_GET['prescription_success']) && $_GET['prescription_success'] == 1) {
+    $successMessage = "Prescription créée avec succès!";
+}
+
 // Initialize variables
 $selectedPatient = null;
 $patientPrescriptions = [];
 $patientNotes = [];
 $patientAppointments = [];
+$searchResults = [];
 
-// Check if a patient is selected
-if(isset($_GET['patient_id']) && !empty($_GET['patient_id'])) {
-    $patient_id = $_GET['patient_id'];
+// Check if a patient is selected via search or direct link
+if((isset($_GET['patient_id']) && !empty($_GET['patient_id'])) || (isset($_POST['patient_id']) && !empty($_POST['patient_id']))) {
+    $patient_id = isset($_GET['patient_id']) ? $_GET['patient_id'] : $_POST['patient_id'];
     
     // Fetch patient details
     $patientQuery = $database->query("SELECT * FROM patient WHERE pid = '$patient_id'");
@@ -89,12 +95,17 @@ if(isset($_POST['search_patient'])) {
         LIMIT 10
     ");
     
-    $searchResults = [];
     if($searchQuery && $searchQuery->num_rows > 0) {
         while($row = $searchQuery->fetch_assoc()) {
             $searchResults[] = $row;
         }
     }
+}
+
+// Handle direct patient selection from search results
+if(isset($_POST['select_patient'])) {
+    $patient_id = $_POST['patient_id'];
+    // The rest of the processing will happen in the section above
 }
 ?>
 <!DOCTYPE html>
@@ -289,6 +300,26 @@ if(isset($_POST['search_patient'])) {
             justify-content: center;
         }
         
+        /* Alert Styles */
+        .alert {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert i {
+            margin-right: 10px;
+        }
+        
         /* Medical Container */
         .medical-container {
             background: white;
@@ -405,6 +436,38 @@ if(isset($_POST['search_patient'])) {
             font-size: 18px;
         }
         
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 25px;
+        }
+        
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        
+        .tab:hover {
+            background: #f5f7fb;
+        }
+        
+        .tab.active {
+            border-bottom-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
         /* Section Cards */
         .section-card {
             background: white;
@@ -444,6 +507,8 @@ if(isset($_POST['search_patient'])) {
         
         .record-item:hover {
             background: #f9fafc;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         
         .record-item:last-child {
@@ -455,6 +520,7 @@ if(isset($_POST['search_patient'])) {
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
+            flex-wrap: wrap;
         }
         
         .record-title {
@@ -475,6 +541,7 @@ if(isset($_POST['search_patient'])) {
         .record-detail {
             margin-bottom: 5px;
             display: flex;
+            flex-wrap: wrap;
         }
         
         .detail-label {
@@ -490,6 +557,7 @@ if(isset($_POST['search_patient'])) {
             margin-top: 10px;
             font-size: 13px;
             color: var(--secondary);
+            flex-wrap: wrap;
         }
         
         .status-badge {
@@ -542,6 +610,19 @@ if(isset($_POST['search_patient'])) {
             color: #2196f3;
         }
         
+        /* Prescription Search */
+        .prescription-search {
+            margin-bottom: 20px;
+        }
+        
+        .prescription-search-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 15px;
+        }
+        
         /* Empty State */
         .empty-state {
             text-align: center;
@@ -557,6 +638,60 @@ if(isset($_POST['search_patient'])) {
         
         .empty-state p {
             margin-bottom: 20px;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .action-buttons .btn {
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+        
+        .action-buttons .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .action-buttons .btn-primary:hover {
+            background: #1e4bb3;
+        }
+        
+        .action-buttons .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .action-buttons .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        /* No Patient Selected */
+        .no-patient-selected {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--secondary);
+        }
+        
+        .no-patient-selected i {
+            font-size: 60px;
+            margin-bottom: 20px;
+            color: #ddd;
+        }
+        
+        .no-patient-selected h3 {
+            margin-bottom: 10px;
+            color: var(--dark);
         }
         
         /* Animations */
@@ -614,6 +749,35 @@ if(isset($_POST['search_patient'])) {
             
             .record-date {
                 margin-top: 5px;
+            }
+            
+            .record-detail {
+                flex-direction: column;
+            }
+            
+            .detail-label {
+                min-width: auto;
+                margin-bottom: 5px;
+            }
+            
+            .record-footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1;
+                text-align: center;
+                min-width: 120px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
             }
         }
         
@@ -736,6 +900,16 @@ if(isset($_POST['search_patient'])) {
                     </td>
                 </tr>
                 
+                <?php if(isset($successMessage)): ?>
+                <tr>
+                    <td>
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> <?php echo $successMessage; ?>
+                        </div>
+                    </td>
+                </tr>
+                <?php endif; ?>
+                
                 <tr>
                     <td colspan="4">
                         <div class="medical-container">
@@ -743,7 +917,7 @@ if(isset($_POST['search_patient'])) {
                             <div class="patient-search">
                                 <h3><i class="fas fa-search"></i> Rechercher un patient</h3>
                                 <form method="POST" class="search-form" id="searchForm">
-                                    <input type="text" name="search_term" class="search-input" placeholder="Nom, email ou téléphone du patient..." value="<?php echo isset($_POST['search_term']) ? htmlspecialchars($_POST['search_term']) : ''; ?>">
+                                    <input type="text" name="search_term" class="search-input" placeholder="Nom, email ou téléphone du patient..." value="<?php echo isset($_POST['search_term']) ? htmlspecialchars($_POST['search_term']) : ''; ?>" required>
                                     <button type="submit" name="search_patient" class="search-btn">
                                         <i class="fas fa-search"></i> Rechercher
                                     </button>
@@ -752,11 +926,19 @@ if(isset($_POST['search_patient'])) {
                                 <?php if(isset($searchResults) && !empty($searchResults)): ?>
                                 <div class="search-results" id="searchResults" style="display: block;">
                                     <?php foreach($searchResults as $patient): ?>
-                                        <div class="search-result-item" onclick="window.location.href='medical_record.php?patient_id=<?php echo $patient['pid']; ?>'">
-                                            <strong><?php echo htmlspecialchars($patient['pname']); ?></strong>
-                                            <div style="font-size: 13px; color: #666;">
-                                                <?php echo htmlspecialchars($patient['pemail']); ?> | <?php echo htmlspecialchars($patient['tel']); ?>
-                                            </div>
+                                        <div class="search-result-item">
+                                            <form method="POST" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                                <div>
+                                                    <strong><?php echo htmlspecialchars($patient['pname']); ?></strong>
+                                                    <div style="font-size: 13px; color: #666;">
+                                                        <?php echo htmlspecialchars($patient['pemail']); ?> | <?php echo isset($patient['tel']) ? htmlspecialchars($patient['tel']) : 'Non renseigné'; ?>
+                                                    </div>
+                                                </div>
+                                                <input type="hidden" name="patient_id" value="<?php echo $patient['pid']; ?>">
+                                                <button type="submit" name="select_patient" class="btn btn-primary" style="padding: 8px 15px;">
+                                                    <i class="fas fa-folder-open"></i> Voir dossier
+                                                </button>
+                                            </form>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
@@ -778,7 +960,7 @@ if(isset($_POST['search_patient'])) {
                                     </div>
                                     <div class="info-item">
                                         <i class="fas fa-phone"></i>
-                                        <span id="patientPhone"><?php echo htmlspecialchars($selectedPatient['tel']); ?></span>
+                                        <span id="patientPhone"><?php echo isset($selectedPatient['tel']) ? htmlspecialchars($selectedPatient['tel']) : 'Non renseigné'; ?></span>
                                     </div>
                                     <div class="info-item">
                                         <i class="fas fa-id-card"></i>
@@ -799,47 +981,76 @@ if(isset($_POST['search_patient'])) {
                                 <div class="section-card">
                                     <h3 class="section-title"><i class="fas fa-prescription"></i> Prescriptions</h3>
                                     
+                                    <!-- Prescription Search -->
+                                    <div class="prescription-search">
+                                        <input type="text" id="prescriptionSearch" class="prescription-search-input" placeholder="Rechercher dans les prescriptions..." onkeyup="filterPrescriptions()">
+                                    </div>
+                                    
                                     <div class="records-list" id="prescriptionsList">
                                         <?php if (!empty($patientPrescriptions)): ?>
-                                            <?php foreach($patientPrescriptions as $prescription): ?>
-                                                <div class="record-item">
-                                                    <div class="record-header">
-                                                        <span class="record-title"><?php echo htmlspecialchars($prescription['medication_name']); ?></span>
-                                                        <span class="record-date"><?php echo date('d/m/Y', strtotime($prescription['prescription_date'])); ?></span>
+                                            <?php 
+                                            // Group prescriptions by date
+                                            $groupedPrescriptions = [];
+                                            foreach($patientPrescriptions as $prescription) {
+                                                $date = $prescription['prescription_date'];
+                                                if (!isset($groupedPrescriptions[$date])) {
+                                                    $groupedPrescriptions[$date] = [];
+                                                }
+                                                $groupedPrescriptions[$date][] = $prescription;
+                                            }
+                                            ?>
+                                            
+                                            <?php foreach($groupedPrescriptions as $date => $prescriptions): ?>
+                                                <h4 style="margin: 20px 0 10px; color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 5px;">
+                                                    <?php echo date('d/m/Y', strtotime($date)); ?>
+                                                </h4>
+                                                
+                                                <?php foreach($prescriptions as $prescription): ?>
+                                                    <div class="record-item prescription-item">
+                                                        <div class="record-header">
+                                                            <span class="record-title"><?php echo htmlspecialchars($prescription['medication_name']); ?></span>
+                                                            <span class="record-date"><?php echo date('d/m/Y', strtotime($prescription['prescription_date'])); ?></span>
+                                                        </div>
+                                                        
+                                                        <div class="record-details">
+                                                            <div class="record-detail">
+                                                                <span class="detail-label">Dosage:</span>
+                                                                <span><?php echo htmlspecialchars($prescription['dosage']); ?></span>
+                                                            </div>
+                                                            <div class="record-detail">
+                                                                <span class="detail-label">Fréquence:</span>
+                                                                <span><?php echo htmlspecialchars($prescription['frequency']); ?></span>
+                                                            </div>
+                                                            <div class="record-detail">
+                                                                <span class="detail-label">Durée:</span>
+                                                                <span><?php echo htmlspecialchars($prescription['duration']); ?></span>
+                                                            </div>
+                                                            <?php if(!empty($prescription['instructions'])): ?>
+                                                            <div class="record-detail">
+                                                                <span class="detail-label">Instructions:</span>
+                                                                <span><?php echo htmlspecialchars($prescription['instructions']); ?></span>
+                                                            </div>
+                                                            <?php endif; ?>
+                                                            <?php if(!empty($prescription['doctor_notes'])): ?>
+                                                            <div class="record-detail">
+                                                                <span class="detail-label">Notes du médecin:</span>
+                                                                <span><?php echo nl2br(htmlspecialchars($prescription['doctor_notes'])); ?></span>
+                                                            </div>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                        
+                                                        <div class="record-footer">
+                                                            <div>
+                                                                <span class="status-badge status-<?php echo $prescription['status']; ?>">
+                                                                    <?php echo $prescription['status'] === 'active' ? 'Actif' : 'Terminé'; ?>
+                                                                </span>
+                                                            </div>
+                                                            <div>
+                                                                Prescrit par Dr. <?php echo htmlspecialchars($prescription['docname']); ?>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    
-                                                    <div class="record-details">
-                                                        <div class="record-detail">
-                                                            <span class="detail-label">Dosage:</span>
-                                                            <span><?php echo htmlspecialchars($prescription['dosage']); ?></span>
-                                                        </div>
-                                                        <div class="record-detail">
-                                                            <span class="detail-label">Fréquence:</span>
-                                                            <span><?php echo htmlspecialchars($prescription['frequency']); ?></span>
-                                                        </div>
-                                                        <div class="record-detail">
-                                                            <span class="detail-label">Durée:</span>
-                                                            <span><?php echo htmlspecialchars($prescription['duration']); ?></span>
-                                                        </div>
-                                                        <?php if(!empty($prescription['instructions'])): ?>
-                                                        <div class="record-detail">
-                                                            <span class="detail-label">Instructions:</span>
-                                                            <span><?php echo htmlspecialchars($prescription['instructions']); ?></span>
-                                                        </div>
-                                                        <?php endif; ?>
-                                                    </div>
-                                                    
-                                                    <div class="record-footer">
-                                                        <div>
-                                                            <span class="status-badge status-<?php echo $prescription['status']; ?>">
-                                                                <?php echo $prescription['status'] === 'active' ? 'Actif' : 'Terminé'; ?>
-                                                            </span>
-                                                        </div>
-                                                        <div>
-                                                            Prescrit par Dr. <?php echo htmlspecialchars($prescription['docname']); ?>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                <?php endforeach; ?>
                                             <?php endforeach; ?>
                                         <?php else: ?>
                                             <div class="empty-state">
@@ -951,18 +1162,35 @@ if(isset($_POST['search_patient'])) {
                                                     </div>
                                                     
                                                     <div class="record-footer">
-                                                        <span>Avec Dr. <?php echo htmlspecialchars($appointment['docname']); ?></span>
+                                                        <span>Médecin: Dr. <?php echo htmlspecialchars($appointment['docname']); ?></span>
                                                     </div>
                                                 </div>
                                             <?php endforeach; ?>
                                         <?php else: ?>
                                             <div class="empty-state">
-                                                <i class="fas fa-calendar-times"></i>
+                                                <i class="fas fa-calendar-check"></i>
                                                 <p>Aucun rendez-vous enregistré pour ce patient.</p>
                                             </div>
                                         <?php endif; ?>
                                     </div>
                                 </div>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="action-buttons">
+                                <a href="create_prescription.php?patient_id=<?php echo $selectedPatient['pid']; ?>" class="btn btn-primary">
+                                    <i class="fas fa-prescription"></i> Nouvelle Prescription
+                                </a>
+                                <button class="btn btn-secondary" onclick="window.print()">
+                                    <i class="fas fa-print"></i> Imprimer
+                                </button>
+                            </div>
+                            <?php else: ?>
+                            <!-- No Patient Selected -->
+                            <div class="no-patient-selected">
+                                <i class="fas fa-folder-open"></i>
+                                <h3>Sélectionnez un patient pour voir son dossier médical</h3>
+                                <p>Utilisez la barre de recherche ci-dessus pour trouver un patient.</p>
                             </div>
                             <?php endif; ?>
                         </div>
@@ -973,25 +1201,56 @@ if(isset($_POST['search_patient'])) {
     </div>
 
     <script>
-    // Tab functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const tabs = document.querySelectorAll('.tab');
-        const tabContents = document.querySelectorAll('.tab-content');
-        
-        tabs.forEach(tab => {
-            tab.addEventListener('click', function() {
-                const tabId = this.getAttribute('data-tab');
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and content
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 
-                // Remove active class from all tabs and contents
-                tabs.forEach(t => t.classList.remove('active'));
-                tabContents.forEach(c => c.classList.remove('active'));
+                // Add active class to clicked tab
+                tab.classList.add('active');
                 
-                // Add active class to current tab and content
-                this.classList.add('active');
-                document.getElementById(tabId + '-tab').classList.add('active');
+                // Show corresponding content
+                const tabName = tab.getAttribute('data-tab');
+                document.getElementById(`${tabName}-tab`).classList.add('active');
             });
         });
-    });
+        
+        // Prescription search/filter functionality
+        function filterPrescriptions() {
+            const searchTerm = document.getElementById('prescriptionSearch').value.toLowerCase();
+            const prescriptionItems = document.querySelectorAll('.prescription-item');
+            
+            prescriptionItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+        
+        // Auto-submit form when patient is selected from search results
+        document.querySelectorAll('.search-result-item form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                // Add loading indicator
+                const button = this.querySelector('button[type="submit"]');
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Chargement...';
+                button.disabled = true;
+                
+                // The form will submit normally
+            });
+        });
+        
+        // Preserve search term after page reload
+        document.addEventListener('DOMContentLoaded', function() {
+            <?php if(isset($_POST['search_term'])): ?>
+                document.getElementById('searchForm').scrollIntoView({ behavior: 'smooth' });
+            <?php endif; ?>
+        });
     </script>
 </body>
 </html>

@@ -37,30 +37,65 @@ $schedulerow_count = $database->query("select * from schedule where scheduledate
 // Pour la liste de recherche des médecins
 $list11 = $database->query("select docname,docemail from doctor;");
 
-// Fetch notifications for the patient
+// Fetch notifications for the patient - FIXED QUERY
 $notifications = array();
-$notification_query = $database->query("
-    SELECT * FROM notifications 
-    WHERE user_id = '$userid' OR user_type = 'p' OR user_type = 'all'
-    ORDER BY created_at DESC 
-    LIMIT 10
-");
-
-if($notification_query && $notification_query->num_rows > 0) {
-    while($row = $notification_query->fetch_assoc()) {
-        $notifications[] = $row;
-    }
-}
-
 $unread_count = 0;
-$unread_query = $database->query("
-    SELECT COUNT(*) as count FROM notifications 
-    WHERE (user_id = '$userid' OR user_type = 'p' OR user_type = 'all') 
-    AND is_read = 0
-");
-if($unread_query && $unread_query->num_rows > 0) {
-    $unread_data = $unread_query->fetch_assoc();
-    $unread_count = $unread_data['count'];
+
+// First check if notifications table exists
+$table_check = $database->query("SHOW TABLES LIKE 'notifications'");
+if($table_check && $table_check->num_rows > 0) {
+    // Table exists, proceed with notification queries
+    $notification_query = $database->query("
+        SELECT * FROM notifications 
+        WHERE (user_id = '$userid' AND user_type = 'patient') OR user_type = 'all'
+        ORDER BY created_at DESC 
+        LIMIT 10
+    ");
+    
+    if($notification_query && $notification_query->num_rows > 0) {
+        while($row = $notification_query->fetch_assoc()) {
+            $notifications[] = $row;
+        }
+    }
+    
+    $unread_query = $database->query("
+        SELECT COUNT(*) as count FROM notifications 
+        WHERE ((user_id = '$userid' AND user_type = 'patient') OR user_type = 'all') 
+        AND is_read = 0
+    ");
+    
+    if($unread_query && $unread_query->num_rows > 0) {
+        $unread_data = $unread_query->fetch_assoc();
+        $unread_count = $unread_data['count'];
+    }
+} else {
+    // Table doesn't exist, create it
+    $create_table = $database->query("
+        CREATE TABLE IF NOT EXISTS `notifications` (
+            `notification_id` INT AUTO_INCREMENT PRIMARY KEY,
+            `user_id` INT NOT NULL,
+            `user_type` ENUM('patient', 'doctor', 'admin') NOT NULL,
+            `title` VARCHAR(255) NOT NULL,
+            `message` TEXT NOT NULL,
+            `type` ENUM('appointment', 'prescription', 'medical_note', 'system', 'reminder') DEFAULT 'system',
+            `related_id` INT DEFAULT NULL COMMENT 'ID of related record (appointment_id, prescription_id, etc.)',
+            `is_read` TINYINT(1) DEFAULT 0 COMMENT '0=unread, 1=read',
+            `priority` ENUM('low', 'medium', 'high') DEFAULT 'medium',
+            `expiry_date` DATETIME DEFAULT NULL COMMENT 'When notification should expire',
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            `read_at` TIMESTAMP NULL DEFAULT NULL,
+            INDEX `idx_user` (`user_id`, `user_type`),
+            INDEX `idx_read_status` (`is_read`),
+            INDEX `idx_created_at` (`created_at`),
+            INDEX `idx_type` (`type`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+    ");
+    
+    if($create_table) {
+        error_log("Notifications table created successfully");
+    } else {
+        error_log("Error creating notifications table: " . $database->error);
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -326,14 +361,15 @@ if($unread_query && $unread_query->num_rows > 0) {
                                 <ul class="notification-list">
                                     <?php if (count($notifications) > 0): ?>
                                         <?php foreach ($notifications as $notification): ?>
-                                            <li class="notification-item <?php echo $notification['is_read'] == 0 ? 'unread' : ''; ?>" data-id="<?php echo $notification['id']; ?>">
+                                            <li class="notification-item <?php echo $notification['is_read'] == 0 ? 'unread' : ''; ?>" data-id="<?php echo $notification['notification_id']; ?>">
                                                 <div class="notification-icon">
                                                     <?php 
                                                     $icon = '📋';
-                                                    if (strpos($notification['type'], 'appointment') !== false) $icon = '📅';
-                                                    if (strpos($notification['type'], 'prescription') !== false) $icon = '💊';
-                                                    if (strpos($notification['type'], 'announcement') !== false) $icon = '📢';
-                                                    if (strpos($notification['type'], 'medical') !== false) $icon = '📝';
+                                                    if ($notification['type'] === 'appointment') $icon = '📅';
+                                                    if ($notification['type'] === 'prescription') $icon = '💊';
+                                                    if ($notification['type'] === 'system') $icon = '📢';
+                                                    if ($notification['type'] === 'medical_note') $icon = '📝';
+                                                    if ($notification['type'] === 'reminder') $icon = '⏰';
                                                     echo $icon;
                                                     ?>
                                                 </div>
@@ -781,11 +817,18 @@ if($unread_query && $unread_query->num_rows > 0) {
                         if (badge) {
                             badge.remove();
                         }
+                        
+                        alert('Toutes les notifications ont été marquées comme lues.');
+                    } else {
+                        alert('Erreur: ' + data.message);
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    alert('Erreur lors du marquage des notifications comme lues.');
                 });
+            } else {
+                alert('Aucune notification non lue à marquer.');
             }
         });
         

@@ -13,6 +13,9 @@ $userfetch = $userrow->fetch_assoc();
 $userid = $userfetch["docid"];
 $username = $userfetch["docname"];
 
+// Set timezone to Cameroon (Africa/Douala)
+date_default_timezone_set('Africa/Douala');
+
 // Fetch patients for autocomplete
 $patients = [];
 $patient_result = $database->query("SELECT * FROM patient");
@@ -22,30 +25,13 @@ if($patient_result){
     }
 }
 
-// Fetch appointments for the selected patient
-$appointments = [];
-if(isset($_GET['patient_id']) && !empty($_GET['patient_id'])) {
-    $patient_id = $_GET['patient_id'];
-    $appointment_result = $database->query("
-        SELECT a.*, s.title 
-        FROM appointment a 
-        LEFT JOIN schedule s ON a.scheduleid = s.scheduleid 
-        WHERE a.pid = '$patient_id' AND a.docid = '$userid'
-        ORDER BY a.appodate DESC
-    ");
-    if($appointment_result){
-        while($row = $appointment_result->fetch_assoc()){
-            $appointments[] = $row;
-        }
-    }
-}
-
 // Handle form submission
 $message = "";
 if(isset($_POST['submit'])){
     $patient_id = $_POST['patient_id'];
     $appointment_id = !empty($_POST['appointment_id']) ? $_POST['appointment_id'] : NULL;
     $date = date('Y-m-d');
+    $doctor_notes = $_POST['doctor_notes'] ?? '';
 
     // Medications arrays
     $medications = $_POST['medication_name'];
@@ -55,11 +41,11 @@ if(isset($_POST['submit'])){
     $instructions_list = $_POST['instructions'];
 
     $errors = [];
-    $stmt = $database->prepare("INSERT INTO prescriptions (patient_id, doctor_id, appointment_id, prescription_date, medication_name, dosage, frequency, duration, instructions, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')");
+    $stmt = $database->prepare("INSERT INTO prescriptions (patient_id, doctor_id, appointment_id, prescription_date, medication_name, dosage, frequency, duration, instructions, doctor_notes, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')");
 
     for($i=0; $i<count($medications); $i++){
         if(trim($medications[$i]) != ""){
-            $stmt->bind_param("iiissssss", $patient_id, $userid, $appointment_id, $date, $medications[$i], $dosages[$i], $frequencies[$i], $durations[$i], $instructions_list[$i]);
+            $stmt->bind_param("iiisssssss", $patient_id, $userid, $appointment_id, $date, $medications[$i], $dosages[$i], $frequencies[$i], $durations[$i], $instructions_list[$i], $doctor_notes);
             if(!$stmt->execute()){
                 $errors[] = $stmt->error;
             }
@@ -67,7 +53,9 @@ if(isset($_POST['submit'])){
     }
 
     if(empty($errors)){
-        $message = "Prescription(s) créée(s) avec succès !";
+        // Redirect to medical record with patient ID and success message
+        header("Location: medical_record.php?patient_id=" . $patient_id . "&prescription_success=1");
+        exit();
     } else {
         $message = "Erreur(s) lors de la création : " . implode(", ", $errors);
     }
@@ -321,6 +309,10 @@ if(isset($_POST['submit'])){
             color: #bd2130;
         }
         
+        .doctor-notes {
+            margin-top: 20px;
+        }
+        
         @media (max-width: 768px) {
             .medication-row {
                 flex-direction: column;
@@ -386,7 +378,6 @@ if(isset($_POST['submit'])){
                     <label for="appointment_id">Associer à un rendez-vous (optionnel) :</label>
                     <select name="appointment_id" id="appointment_id">
                         <option value="">Aucun rendez-vous</option>
-                        <!-- Appointments will be populated via JavaScript -->
                     </select>
                 </div>
             </div>
@@ -444,12 +435,12 @@ if(isset($_POST['submit'])){
             
             <div class="form-section">
                 <div class="section-title">
-                    <i class="fas fa-stethoscope"></i> Instructions Additionnelles
+                    <i class="fas fa-stethoscope"></i> Notes et Observations du Médecin
                 </div>
                 
-                <div class="form-group">
-                    <label for="additional_instructions">Instructions générales et recommandations :</label>
-                    <textarea id="additional_instructions" name="additional_instructions" rows="3" placeholder="Instructions générales, recommandations alimentaires, activités à éviter..."></textarea>
+                <div class="form-group doctor-notes">
+                    <label for="doctor_notes">Observations médicales et recommandations :</label>
+                    <textarea id="doctor_notes" name="doctor_notes" rows="4" placeholder="Notes sur l'état du patient, diagnostic, observations cliniques, recommandations..."></textarea>
                 </div>
             </div>
             
@@ -465,7 +456,7 @@ if(isset($_POST['submit'])){
                         <div style="border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 10px;">
                             Signature numérique
                         </div>
-                        <div><?php echo date('d/m/Y à H:i'); ?></div>
+                        <div><?php echo date('d/m/Y à H:i'); ?> (Heure du Cameroun)</div>
                     </div>
                 </div>
             </div>
@@ -561,33 +552,22 @@ if(isset($_POST['submit'])){
             appointmentSelect.style.display = 'block';
             
             // Fetch appointments via AJAX
-            fetch(`?patient_id=${patientId}`)
-                .then(response => response.text())
-                .then(html => {
-                    // Create a temporary DOM element to parse the PHP response
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
+            fetch(`get_patient_appointments.php?patient_id=${patientId}&doctor_id=<?php echo $userid; ?>`)
+                .then(response => response.json())
+                .then(appointments => {
+                    // Populate the dropdown
+                    appointmentDropdown.innerHTML = '<option value="">Aucun rendez-vous</option>';
                     
-                    // Extract the appointments from the PHP-generated JavaScript variable
-                    const appointmentsScript = doc.querySelector('script');
-                    if (appointmentsScript) {
-                        // This is a simplified approach - in a real application, you'd use a proper API endpoint
-                        eval(appointmentsScript.innerHTML);
-                        
-                        // Populate the dropdown
-                        appointmentDropdown.innerHTML = '<option value="">Aucun rendez-vous</option>';
-                        
-                        if (window.appointments && window.appointments.length > 0) {
-                            window.appointments.forEach(app => {
-                                const option = document.createElement('option');
-                                option.value = app.appoid;
-                                const date = new Date(app.appodate).toLocaleDateString();
-                                option.textContent = `${date} - ${app.appotime} ${app.title ? `(${app.title})` : ''}`;
-                                appointmentDropdown.appendChild(option);
-                            });
-                        } else {
-                            appointmentDropdown.innerHTML = '<option value="">Aucun rendez-vous trouvé</option>';
-                        }
+                    if (appointments && appointments.length > 0) {
+                        appointments.forEach(app => {
+                            const option = document.createElement('option');
+                            option.value = app.appoid;
+                            const date = new Date(app.appodate).toLocaleDateString();
+                            option.textContent = `${date} - ${app.appotime} ${app.title ? `(${app.title})` : ''}`;
+                            appointmentDropdown.appendChild(option);
+                        });
+                    } else {
+                        appointmentDropdown.innerHTML = '<option value="">Aucun rendez-vous trouvé</option>';
                     }
                 })
                 .catch(error => {
@@ -699,11 +679,6 @@ if(isset($_POST['submit'])){
                 e.preventDefault();
             }
         });
-    </script>
-    
-    <script>
-        // Pass PHP appointments data to JavaScript
-        const appointments = <?php echo json_encode($appointments); ?>;
     </script>
 </body>
 </html>

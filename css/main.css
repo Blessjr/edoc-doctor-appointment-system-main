@@ -385,14 +385,18 @@ input[type=search]:focus {
 .menu-icon-settings{
   background-image: url('../img/icons/settings.svg');
 }
-
 .menu-icon-session{
   background-image: url('../img/icons/session.svg');
 }
 .menu-icon-home{
   background-image: url('../img/icons/home.svg');
 }
-
+.menu-icon-record{
+  background-image: url('../img/icons/medical-record.svg');
+}
+.menu-icon-prescription{
+  background-image: url('../img/icons/prescription.svg');
+}
 
 
 .menu-icon-dashbord:hover,.menu-icon-dashbord-active{

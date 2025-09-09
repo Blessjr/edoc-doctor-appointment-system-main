@@ -22,7 +22,7 @@ $userid= $userfetch["docid"];
 $username=$userfetch["docname"];
 
 // Get data for dashboard
-date_default_timezone_set('Asia/Kolkata');
+date_default_timezone_set('Africa/Douala');
 $today = date('Y-m-d');
 $patientrow = $database->query("select * from patient;");
 $doctorrow = $database->query("select * from doctor;");
@@ -64,7 +64,7 @@ if($unread_query && $unread_query->num_rows > 0) {
     <link rel="stylesheet" href="../css/animations.css">      
     <link rel="stylesheet" href="../css/main.css">      
     <link rel="stylesheet" href="../css/admin.css">
-    <title>Dashboard</title>
+    <title>Tableau de bord</title>
     <style>
         .dashbord-tables,.doctor-heade{
             animation: transitionIn-Y-over 0.5s;
@@ -245,7 +245,7 @@ if($unread_query && $unread_query->num_rows > 0) {
                             </tr>
                             <tr>
                                 <td colspan="2">
-                                    <a href="../logout.php"><input type="button" value="Log out" class="logout-btn btn-primary-soft btn"></a>
+                                    <a href="../logout.php"><input type="button" value="Se déconnecter" class="logout-btn btn-primary-soft btn"></a>
                                 </td>
                             </tr>
                         </table>
@@ -253,42 +253,38 @@ if($unread_query && $unread_query->num_rows > 0) {
                 </tr>
                 <tr class="menu-row">
                     <td class="menu-btn menu-icon-dashbord menu-active menu-icon-dashbord-active">
-                        <a href="index.php" class="non-style-link-menu non-style-link-menu-active"><div><p class="menu-text">Dashboard</p></div></a>
+                        <a href="index.php" class="non-style-link-menu non-style-link-menu-active"><div><p class="menu-text">Tableau de bord</p></div></a>
                     </td>
                 </tr>
                 <tr class="menu-row">
                     <td class="menu-btn menu-icon-appoinment">
-                        <a href="appointment.php" class="non-style-link-menu"><div><p class="menu-text">My Appointments</p></div></a>
+                        <a href="appointment.php" class="non-style-link-menu"><div><p class="menu-text">Mes Rendez-vous</p></div></a>
                     </td>
                 </tr>
                 <tr class="menu-row">
                     <td class="menu-btn menu-icon-session">
-                        <a href="schedule.php" class="non-style-link-menu"><div><p class="menu-text">My Sessions</p></div></a>
+                        <a href="schedule.php" class="non-style-link-menu"><div><p class="menu-text">Mes Séances</p></div></a>
                     </td>
                 </tr>
                 <tr class="menu-row">
                     <td class="menu-btn menu-icon-patient">
-                        <a href="patient.php" class="non-style-link-menu"><div><p class="menu-text">My Patients</p></div></a>
+                        <a href="patient.php" class="non-style-link-menu"><div><p class="menu-text">Mes Patients</p></div></a>
                     </td>
                 </tr>
-                
-                <!-- NEW: Create Prescription Option -->
                 <tr class="menu-row">
                     <td class="menu-btn menu-icon-prescription">
-                        <a href="create_prescription.php" class="non-style-link-menu"><div><p class="menu-text">Create Prescription</p></div></a>
+                        <a href="create_prescription.php" class="non-style-link-menu"><p class="menu-text">Créer Ordonnance</p></a>
                     </td>
                 </tr>
-                
-                <!-- UPDATED: Medical Record Option -->
                 <tr class="menu-row">
-                    <td class="menu-btn menu-icon-medical-record">
-                        <a href="medical_record.php" class="non-style-link-menu"><div><p class="menu-text">Medical Record</p></div></a>
+                    <td class="menu-btn menu-icon-record">
+                        <a href="medical_record.php" class="non-style-link-menu"><p class="menu-text">Dossier Médical</p></a>
                     </td>
                 </tr>
                 
                 <tr class="menu-row">
                     <td class="menu-btn menu-icon-settings">
-                        <a href="settings.php" class="non-style-link-menu"><div><p class="menu-text">Settings</p></div></a>
+                        <a href="settings.php" class="non-style-link-menu"><div><p class="menu-text">Paramètres</p></div></a>
                     </td>
                 </tr>
             </table>
@@ -298,12 +294,12 @@ if($unread_query && $unread_query->num_rows > 0) {
             <table border="0" width="100%" style="border-spacing: 0;margin:0;padding:0;">
                 <tr>
                     <td colspan="1" class="nav-bar">
-                        <p style="font-size: 23px;padding-left:12px;font-weight: 600;margin-left:20px;">Dashboard</p>
+                        <p style="font-size: 23px;padding-left:12px;font-weight: 600;margin-left:20px;">Accueil</p>
                     </td>
                     <td width="25%"></td>
                     <td width="15%">
                         <p style="font-size: 14px;color: rgb(119, 119, 119);padding: 0;margin: 0;text-align: right;">
-                            Today's Date
+                            Date d'aujourd'hui
                         </p>
                         <p class="heading-sub12" style="padding: 0;margin: 0;">
                             <?php echo $today; ?>
@@ -316,17 +312,17 @@ if($unread_query && $unread_query->num_rows > 0) {
                     </td>
                     <td width="5%">
                         <!-- Notification Bell -->
-                        <div class="notification-container">
-                            <div class="notification-bell" id="notificationBell">
-                                🔔
-                                <?php if ($unread_count > 0): ?>
-                                    <span class="notification-badge"><?php echo $unread_count; ?></span>
-                                <?php endif; ?>
-                            </div>
+                    <div class="notification-container">
+                        <div class="notification-bell" id="notificationBell">
+                            🔔
+                            <?php if ($unread_count > 0): ?>
+                                <span class="notification-badge"><?php echo $unread_count; ?></span>
+                            <?php endif; ?>
+                    </div>
                             <div class="notification-dropdown" id="notificationDropdown">
                                 <div class="notification-header">
                                     <h3>Notifications</h3>
-                                    <button class="mark-all-read" id="markAllRead">Mark all as read</button>
+                                    <button class="mark-all-read" id="markAllRead">Tout marquer comme lu</button>
                                 </div>
                                 <ul class="notification-list">
                                     <?php if (count($notifications) > 0): ?>
@@ -350,11 +346,11 @@ if($unread_query && $unread_query->num_rows > 0) {
                                             </li>
                                         <?php endforeach; ?>
                                     <?php else: ?>
-                                        <li class="notification-empty">No notifications</li>
+                                        <li class="notification-empty">Aucune notification</li>
                                     <?php endif; ?>
                                 </ul>
                                 <div class="notification-footer">
-                                    <a href="notifications.php" class="view-all-link">View all notifications</a>
+                                    <a href="notifications.php" class="view-all-link">Voir toutes les notifications</a>
                                 </div>
                             </div>
                         </div>
@@ -367,13 +363,13 @@ if($unread_query && $unread_query->num_rows > 0) {
                             <table class="filter-container doctor-header" style="border: none;width:95%" border="0">
                                 <tr>
                                     <td>
-                                        <h3>Welcome!</h3>
+                                        <h3>Bienvenue !</h3>
                                         <h1><?php echo $username ?>.</h1>
-                                        <p>Thanks for joining with us. We are always trying to get you a complete service<br>
-                                        You can view your daily schedule, Reach Patients Appointment at home!<br><br>
+                                        <p>Merci de nous avoir rejoints... Nous essayons toujours de vous offrir un service complet<br>
+                                        Vous pouvez consulter votre emploi du temps quotidien et accéder aux rendez-vous des patients depuis chez vous !<br><br>
                                         </p>
                                         <a href="appointment.php" class="non-style-link">
-                                            <button class="btn-primary btn" style="width:30%">View My Appointments</button>
+                                            <button class="btn-primary btn" style="width:30%">Voir mes rendez-vous</button>
                                         </a>
                                         <br><br>
                                     </td>
@@ -392,7 +388,7 @@ if($unread_query && $unread_query->num_rows > 0) {
                                         <table class="filter-container" style="border: none;" border="0">
                                             <tr>
                                                 <td colspan="4">
-                                                    <p style="font-size: 20px;font-weight:600;padding-left: 12px;">Status</p>
+                                                    <p style="font-size: 20px;font-weight:600;padding-left: 12px;">Statut</p>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -403,7 +399,7 @@ if($unread_query && $unread_query->num_rows > 0) {
                                                                 <?php echo $doctorrow->num_rows ?>
                                                             </div><br>
                                                             <div class="h3-dashboard">
-                                                                All Doctors &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                                Tous les médecins &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                                             </div>
                                                         </div>
                                                         <div class="btn-icon-back dashboard-icons" style="background-image: url('../img/icons/doctors-hover.svg');"></div>
@@ -416,7 +412,7 @@ if($unread_query && $unread_query->num_rows > 0) {
                                                                 <?php echo $patientrow->num_rows ?>
                                                             </div><br>
                                                             <div class="h3-dashboard">
-                                                                All Patients &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                                Tous les patients &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                                             </div>
                                                         </div>
                                                         <div class="btn-icon-back dashboard-icons" style="background-image: url('../img/icons/patients-hover.svg');"></div>
@@ -431,7 +427,7 @@ if($unread_query && $unread_query->num_rows > 0) {
                                                                 <?php echo $appointmentrow->num_rows ?>
                                                             </div><br>
                                                             <div class="h3-dashboard">
-                                                                NewBooking &nbsp;&nbsp;
+                                                                Nouvelles réservations &nbsp;&nbsp;
                                                             </div>
                                                         </div>
                                                         <div class="btn-icon-back dashboard-icons" style="margin-left: 0px;background-image: url('../img/icons/book-hover.svg');"></div>
@@ -444,7 +440,7 @@ if($unread_query && $unread_query->num_rows > 0) {
                                                                 <?php echo $schedulerow->num_rows ?>
                                                             </div><br>
                                                             <div class="h3-dashboard" style="font-size: 15px">
-                                                                Today Sessions
+                                                                Séances d'aujourd'hui
                                                             </div>
                                                         </div>
                                                         <div class="btn-icon-back dashboard-icons" style="background-image: url('../img/icons/session-iceblue.svg');"></div>
@@ -455,15 +451,15 @@ if($unread_query && $unread_query->num_rows > 0) {
                                     </center>
                                 </td>
                                 <td>
-                                    <p id="anim" style="font-size: 20px;font-weight:600;padding-left: 40px;">Your Up Coming Sessions until Next week</p>
+                                    <p id="anim" style="font-size: 20px;font-weight:600;padding-left: 40px;">Vos prochaines séances jusqu’à la semaine prochaine</p>
                                     <center>
                                         <div class="abc scroll" style="height: 250px;padding: 0;margin: 0;">
                                             <table width="85%" class="sub-table scrolldown" border="0">
                                                 <thead>
                                                     <tr>
-                                                        <th class="table-headin">Session Title</th>
-                                                        <th class="table-headin">Scheduled Date</th>
-                                                        <th class="table-headin">Time</th>
+                                                        <th class="table-headin">Titre de la séance</th>
+                                                        <th class="table-headin">Date prévue</th>
+                                                        <th class="table-headin">Heure</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -479,8 +475,8 @@ if($unread_query && $unread_query->num_rows > 0) {
                                                         <center>
                                                         <img src="../img/notfound.svg" width="25%">
                                                         <br>
-                                                        <p class="heading-main12" style="margin-left: 45px;font-size:20px;color:rgb(49, 49, 49)">We couldnt find anything related to your keywords !</p>
-                                                        <a class="non-style-link" href="schedule.php"><button class="login-btn btn-primary-soft btn" style="display: flex;justify-content: center;align-items: center;margin-left:20px;">&nbsp; Show all Sessions &nbsp;</button>
+                                                        <p class="heading-main12" style="margin-left: 45px;font-size:20px;color:rgb(49, 49, 49)">Nous n’avons trouvé aucun résultat correspondant à vos critères !</p>
+                                                        <a class="non-style-link" href="schedule.php"><button class="login-btn btn-primary-soft btn" style="display: flex;justify-content: center;align-items: center;margin-left:20px;">&nbsp; Afficher toutes les séances &nbsp;</button>
                                                         </a>
                                                         </center>
                                                         <br><br><br><br>
@@ -637,9 +633,9 @@ if($unread_query && $unread_query->num_rows > 0) {
                     
                     // Show notification alert
                     if (data.count === 1) {
-                        showNotificationAlert('You have ' + data.count + ' new notification');
+                        showNotificationAlert('Vous avez ' + data.count + ' nouvelle notification');
                     } else {
-                        showNotificationAlert('You have ' + data.count + ' new notifications');
+                        showNotificationAlert('Vous avez ' + data.count + ' nouvelle notification');
                     }
                 }
             })
@@ -674,21 +670,21 @@ if($unread_query && $unread_query->num_rows > 0) {
     <!-- ADD CHATBOT HERE - Simple inline version -->
     <div id="chat-widget" class="chat-widget hidden">
         <div class="chat-header">
-            <h4>🏥 EDOC AI Assistant</h4>
+            <h4>🏥 Assistant DOCTOLINK</h4>
             <button id="chat-close">×</button>
         </div>
         <div id="chat-messages" class="chat-messages">
             <div class="message ai-message">
-                Hello Dr. <?php echo $username; ?>! I'm your EDOC assistant. How can I help you today?
+                Bonjour Dr. <?php echo $username; ?>! Je suis votre assistant DOCTOLINK. Comment puis-je vous aider aujourd'hui ?
             </div>
         </div>
         <div class="chat-input">
             <input type="text" id="chat-input" placeholder="Ask me anything..." />
-            <button id="chat-send">Send</button>
+            <button id="chat-send">Envoyer</button>
         </div>
     </div>
 
-    <button id="chat-toggle" class="chat-toggle">💬 AI Help</button>
+    <button id="chat-toggle" class="chat-toggle">💬 Aide IA</button>
 
     <style>
     /* Simple Chatbot Styles */
@@ -814,11 +810,11 @@ if($unread_query && $unread_query->num_rows > 0) {
         
         if (chatOpen) {
             widget.classList.add('hidden');
-            button.textContent = '💬 AI Help';
+            button.textContent = '💬 Aide IA';
             chatOpen = false;
         } else {
             widget.classList.remove('hidden');
-            button.textContent = '💬 Close';
+            button.textContent = '💬 Fermer';
             chatOpen = true;
             document.getElementById('chat-input').focus();
         }
@@ -866,20 +862,20 @@ if($unread_query && $unread_query->num_rows > 0) {
     function getAIResponse(message) {
         const msg = message.toLowerCase();
         
-        if (msg.includes('appointment') || msg.includes('booking')) {
-            return 'You can view your appointments by clicking "My Appointments" in the menu. Would you like help with anything specific about appointments?';
+        if (msg.includes('rendez-vous') || msg.includes('reservations')) {
+            return 'Vous pouvez consulter vos rendez-vous en cliquant sur "Mes rendez-vous" dans le menu. Voulez-vous de l’aide sur un rendez-vous spécifique ?';
         }
         if (msg.includes('patient') || msg.includes('patients')) {
-            return 'You can see all your patients in the "My Patients" section. This shows patients assigned to you.';
+            return 'Vous pouvez voir tous vos patients dans la section "Mes patients". Cela montre les patients qui vous sont assignés.';
         }
-        if (msg.includes('schedule') || msg.includes('session')) {
-            return 'Your upcoming sessions are shown on this dashboard. Check "My Sessions" for full schedule management.';
+        if (msg.includes('Mes séances') || msg.includes('session')) {
+            return 'Vos prochaines séances sont affichées sur ce tableau de bord. Consultez "Mes séances" pour gérer l’ensemble de votre planning.';
         }
-        if (msg.includes('hello') || msg.includes('hi')) {
-            return 'Hello Doctor! I\'m here to help you navigate EDOC and answer questions about your practice.';
+        if (msg.includes('Salut') || msg.includes('hello')) {
+            return 'Bonjour Docteur ! Je suis là pour vous aider à naviguer dans DOCTOLINK et répondre à vos questions sur votre pratique.';
         }
         
-        return 'Thank you for your question! I can help with appointments, patient management, schedules, and system navigation. What would you like to know?';
+        return 'Merci pour votre question ! Je peux vous aider avec les rendez-vous, la gestion des patients, le planning et la navigation dans le système. Que souhaitez-vous savoir ?';
     }
     </script>
 </body>

@@ -164,6 +164,18 @@
                     <td class="menu-btn menu-icon-patient">
                         <a href="patient.php" class="non-style-link-menu"><div><p class="menu-text">Mes Patients</p></a></div>
                     </td>
+                </tr>                <!-- NEW: Create Prescription Option -->
+                <tr class="menu-row">
+                    <td class="menu-btn menu-icon-prescription">
+                        <a href="create_prescription.php" class="non-style-link-menu"><div><p class="menu-text">Créer Ordonnance</p></div></a>
+                    </td>
+                </tr>
+                
+                <!-- UPDATED: Medical Record Option -->
+                <tr class="menu-row">
+                    <td class="menu-btn menu-icon-medical-record">
+                        <a href="medical_record.php" class="non-style-link-menu"><div><p class="menu-text">Dossier Médical</p></div></a>
+                    </td>
                 </tr>
                 <tr class="menu-row" >
                     <td class="menu-btn menu-icon-settings">

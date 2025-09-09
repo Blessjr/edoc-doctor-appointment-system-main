@@ -3,7 +3,7 @@
     session_start();
 
     if(isset($_SESSION["user"])){
-        if(($_SESSION["user"])=="" or $_SESSION['usertype']!='a'){
+        if(($_SESSION["user"])=="" or $_SESSION['usertype']!='p'){
             header("location: ../login.php");
         }
 
