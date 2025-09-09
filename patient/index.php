@@ -3,7 +3,7 @@
 session_start();
 
 if(isset($_SESSION["user"])){
-    if(($_SESSION["user"])=="" or $_SESSION['usertype']!='p'){ // Vérifie que c’est bien un patient
+    if(($_SESSION["user"])=="" or $_SESSION['usertype']!='p'){ // Vérifie que c'est bien un patient
         header("location: ../login.php");
         exit();
     }else{
@@ -36,6 +36,32 @@ $schedulerow_count = $database->query("select * from schedule where scheduledate
 
 // Pour la liste de recherche des médecins
 $list11 = $database->query("select docname,docemail from doctor;");
+
+// Fetch notifications for the patient
+$notifications = array();
+$notification_query = $database->query("
+    SELECT * FROM notifications 
+    WHERE user_id = '$userid' OR user_type = 'p' OR user_type = 'all'
+    ORDER BY created_at DESC 
+    LIMIT 10
+");
+
+if($notification_query && $notification_query->num_rows > 0) {
+    while($row = $notification_query->fetch_assoc()) {
+        $notifications[] = $row;
+    }
+}
+
+$unread_count = 0;
+$unread_query = $database->query("
+    SELECT COUNT(*) as count FROM notifications 
+    WHERE (user_id = '$userid' OR user_type = 'p' OR user_type = 'all') 
+    AND is_read = 0
+");
+if($unread_query && $unread_query->num_rows > 0) {
+    $unread_data = $unread_query->fetch_assoc();
+    $unread_count = $unread_data['count'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -56,6 +82,153 @@ $list11 = $database->query("select docname,docemail from doctor;");
         }
         .sub-table,.anime{
             animation: transitionIn-Y-bottom 0.5s;
+        }
+        
+        /* Notification Styles */
+        .notification-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+            font-size: 24px;
+            padding: 10px;
+            color: #2c5cc7;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 350px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .notification-dropdown.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        .notification-header {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .notification-header h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #2c5cc7;
+        }
+        
+        .mark-all-read {
+            background: none;
+            border: none;
+            color: #2c5cc7;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        
+        .notification-list {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+        
+        .notification-item {
+            padding: 15px;
+            border-bottom: 1px solid #f1f1f1;
+            display: flex;
+            align-items: flex-start;
+            transition: background-color 0.2s;
+        }
+        
+        .notification-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .notification-item.unread {
+            background-color: #e8f4ff;
+        }
+        
+        .notification-icon {
+            margin-right: 15px;
+            font-size: 18px;
+            color: #2c5cc7;
+            flex-shrink: 0;
+        }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .notification-message {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .notification-time {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .notification-empty {
+            padding: 20px;
+            text-align: center;
+            color: #999;
+        }
+        
+        .notification-footer {
+            padding: 10px 15px;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+        
+        .view-all-link {
+            color: #2c5cc7;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 </head>
@@ -103,6 +276,14 @@ $list11 = $database->query("select docname,docemail from doctor;");
                         <a href="appointment.php" class="non-style-link-menu"><div><p class="menu-text">Mes réservations</p></a></div>
                     </td>
                 </tr>
+                
+                <!-- NEW: Medical Record Option -->
+                <tr class="menu-row">
+                    <td class="menu-btn menu-icon-medical-record">
+                        <a href="patient_medical_record.php" class="non-style-link-menu"><div><p class="menu-text">Dossier Médical</p></a></div>
+                    </td>
+                </tr>
+                
                 <tr class="menu-row" >
                     <td class="menu-btn menu-icon-settings">
                         <a href="settings.php" class="non-style-link-menu"><div><p class="menu-text">Paramètres</p></a></div>
@@ -125,8 +306,53 @@ $list11 = $database->query("select docname,docemail from doctor;");
                             <?php echo $today; ?>
                         </p>
                     </td>
-                    <td width="10%">
+                    <td width="5%">
                         <button class="btn-label" style="display: flex;justify-content: center;align-items: center;"><img src="../img/calendar.svg" width="100%"></button>
+                    </td>
+                    <td width="5%">
+                        <!-- Notification Bell -->
+                        <div class="notification-container">
+                            <div class="notification-bell" id="notificationBell">
+                                🔔
+                                <?php if ($unread_count > 0): ?>
+                                    <span class="notification-badge"><?php echo $unread_count; ?></span>
+                                <?php endif; ?>
+                            </div>
+                            <div class="notification-dropdown" id="notificationDropdown">
+                                <div class="notification-header">
+                                    <h3>Notifications</h3>
+                                    <button class="mark-all-read" id="markAllRead">Tout marquer comme lu</button>
+                                </div>
+                                <ul class="notification-list">
+                                    <?php if (count($notifications) > 0): ?>
+                                        <?php foreach ($notifications as $notification): ?>
+                                            <li class="notification-item <?php echo $notification['is_read'] == 0 ? 'unread' : ''; ?>" data-id="<?php echo $notification['id']; ?>">
+                                                <div class="notification-icon">
+                                                    <?php 
+                                                    $icon = '📋';
+                                                    if (strpos($notification['type'], 'appointment') !== false) $icon = '📅';
+                                                    if (strpos($notification['type'], 'prescription') !== false) $icon = '💊';
+                                                    if (strpos($notification['type'], 'announcement') !== false) $icon = '📢';
+                                                    if (strpos($notification['type'], 'medical') !== false) $icon = '📝';
+                                                    echo $icon;
+                                                    ?>
+                                                </div>
+                                                <div class="notification-content">
+                                                    <div class="notification-title"><?php echo htmlspecialchars($notification['title']); ?></div>
+                                                    <div class="notification-message"><?php echo htmlspecialchars($notification['message']); ?></div>
+                                                    <div class="notification-time"><?php echo date('d M, Y H:i', strtotime($notification['created_at'])); ?></div>
+                                                </div>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <li class="notification-empty">Aucune notification</li>
+                                    <?php endif; ?>
+                                </ul>
+                                <div class="notification-footer">
+                                    <a href="patient_notifications.php" class="view-all-link">Voir toutes les notifications</a>
+                                </div>
+                            </div>
+                        </div>
                     </td>
                 </tr>
                 <tr>
@@ -137,10 +363,10 @@ $list11 = $database->query("select docname,docemail from doctor;");
                                     <td >
                                         <h3>Bienvenue !</h3>
                                         <h1><?php echo $username ?>.</h1>
-                                        <p>Vous n’avez pas d’idée sur les médecins ? Pas de problème, consultez la section 
+                                        <p>Vous n'avez pas d'idée sur les médecins ? Pas de problème, consultez la section 
                                             <a href="doctors.php" class="non-style-link"><b>"Tous les médecins"</b></a> ou 
                                             <a href="schedule.php" class="non-style-link"><b>"Séances"</b></a>.<br>
-                                            Suivez l’historique de vos rendez-vous passés et futurs.<br>Découvrez également l’heure d’arrivée prévue de votre médecin ou consultant médical.<br><br>
+                                            Suivez l'historique de vos rendez-vous passés et futurs.<br>Découvrez également l'heure d'arrivée prévue de votre médecin ou consultant médical.<br><br>
                                         </p>
                                         <h3>Prendre rendez-vous avec un médecin ici</h3>
                                         <form action="schedule.php" method="post" style="display: flex">
@@ -505,6 +731,154 @@ $list11 = $database->query("select docname,docemail from doctor;");
         messageDiv.innerHTML = text;
         messagesDiv.appendChild(messageDiv);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+    </script>
+    
+    <!-- Notification JavaScript -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const notificationBell = document.getElementById('notificationBell');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        const markAllReadBtn = document.getElementById('markAllRead');
+        
+        // Toggle notification dropdown
+        notificationBell.addEventListener('click', function(e) {
+            e.stopPropagation();
+            notificationDropdown.classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!notificationBell.contains(e.target) && !notificationDropdown.contains(e.target)) {
+                notificationDropdown.classList.remove('show');
+            }
+        });
+        
+        // Mark all as read
+        markAllReadBtn.addEventListener('click', function() {
+            const unreadItems = document.querySelectorAll('.notification-item.unread');
+            const notificationIds = Array.from(unreadItems).map(item => item.getAttribute('data-id'));
+            
+            if (notificationIds.length > 0) {
+                // Send AJAX request to mark notifications as read
+                fetch('mark_notifications_read.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ notification_ids: notificationIds })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update UI
+                        unreadItems.forEach(item => {
+                            item.classList.remove('unread');
+                        });
+                        
+                        // Update badge count
+                        const badge = document.querySelector('.notification-badge');
+                        if (badge) {
+                            badge.remove();
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        });
+        
+        // Mark individual notification as read when clicked
+        const notificationItems = document.querySelectorAll('.notification-item');
+        notificationItems.forEach(item => {
+            item.addEventListener('click', function() {
+                if (this.classList.contains('unread')) {
+                    const notificationId = this.getAttribute('data-id');
+                    
+                    // Send AJAX request to mark this notification as read
+                    fetch('mark_notification_read.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ notification_id: notificationId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            this.classList.remove('unread');
+                            
+                            // Update badge count
+                            const badge = document.querySelector('.notification-badge');
+                            if (badge) {
+                                const count = parseInt(badge.textContent) - 1;
+                                if (count > 0) {
+                                    badge.textContent = count;
+                                } else {
+                                    badge.remove();
+                                }
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                }
+            });
+        });
+        
+        // Check for new notifications periodically
+        setInterval(checkNewNotifications, 30000); // Check every 30 seconds
+    });
+    
+    function checkNewNotifications() {
+        fetch('check_new_notifications.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.count > 0) {
+                    // Update badge
+                    let badge = document.querySelector('.notification-badge');
+                    if (!badge) {
+                        badge = document.createElement('span');
+                        badge.className = 'notification-badge';
+                        document.getElementById('notificationBell').appendChild(badge);
+                    }
+                    badge.textContent = data.count;
+                    
+                    // Show notification alert
+                    if (data.count === 1) {
+                        showNotificationAlert('Vous avez ' + data.count + ' nouvelle notification');
+                    } else {
+                        showNotificationAlert('Vous avez ' + data.count + ' nouvelles notifications');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error checking notifications:', error);
+            });
+    }
+    
+    function showNotificationAlert(message) {
+        // Create and show a temporary alert
+        const alert = document.createElement('div');
+        alert.style.position = 'fixed';
+        alert.style.top = '20px';
+        alert.style.right = '20px';
+        alert.style.backgroundColor = '#2c5cc7';
+        alert.style.color = 'white';
+        alert.style.padding = '15px 20px';
+        alert.style.borderRadius = '5px';
+        alert.style.zIndex = '10000';
+        alert.style.boxShadow = '0 3px 10px rgba(0,0,0,0.2)';
+        alert.textContent = message;
+        
+        document.body.appendChild(alert);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            alert.remove();
+        }, 3000);
     }
     </script>
 </body>

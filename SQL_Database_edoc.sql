@@ -249,63 +249,119 @@ INSERT INTO `webuser` (`email`, `usertype`) VALUES
 ('doctor@edoc.com', 'd'),
 ('patient@edoc.com', 'p'),
 ('emhashenudara@gmail.com', 'p');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `chat_logs`
+--
+
+CREATE TABLE IF NOT EXISTS `chat_logs` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `user_id` INT,
+    `user_role` ENUM('doctor', 'patient', 'admin', 'guest') DEFAULT 'guest',
+    `message` TEXT NOT NULL,
+    `response` TEXT NOT NULL,
+    `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX `idx_user_role` (`user_id`, `user_role`),
+    INDEX `idx_timestamp` (`timestamp`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `chat_sessions`
+--
+
+CREATE TABLE IF NOT EXISTS `chat_sessions` (
+    `session_id` VARCHAR(255) PRIMARY KEY,
+    `user_id` INT,
+    `user_role` ENUM('doctor', 'patient', 'admin', 'guest'),
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `last_activity` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Convert necessary tables to InnoDB for foreign key support
+--
+
+ALTER TABLE `patient` ENGINE = InnoDB;
+ALTER TABLE `doctor` ENGINE = InnoDB;
+ALTER TABLE `appointment` ENGINE = InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `prescriptions`
+--
+
+CREATE TABLE IF NOT EXISTS `prescriptions` (
+    `prescription_id` INT AUTO_INCREMENT PRIMARY KEY,
+    `patient_id` INT NOT NULL,
+    `doctor_id` INT NOT NULL,
+    `appointment_id` INT,
+    `prescription_date` DATE NOT NULL,
+    `medication_name` VARCHAR(255) NOT NULL,
+    `dosage` VARCHAR(100) NOT NULL,
+    `frequency` VARCHAR(100) NOT NULL,
+    `duration` VARCHAR(100) NOT NULL,
+    `instructions` TEXT,
+    `status` ENUM('active', 'completed', 'cancelled') DEFAULT 'active',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (`patient_id`) REFERENCES `patient`(`pid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`doctor_id`) REFERENCES `doctor`(`docid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`appointment_id`) REFERENCES `appointment`(`appoid`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `medical_notes`
+--
+
+CREATE TABLE IF NOT EXISTS `medical_notes` (
+    `note_id` INT AUTO_INCREMENT PRIMARY KEY,
+    `patient_id` INT NOT NULL,
+    `doctor_id` INT NOT NULL,
+    `appointment_id` INT,
+    `note_date` DATE NOT NULL,
+    `note_type` ENUM('diagnosis', 'observation', 'treatment', 'follow_up') DEFAULT 'observation',
+    `note_text` TEXT NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (`patient_id`) REFERENCES `patient`(`pid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`doctor_id`) REFERENCES `doctor`(`docid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`appointment_id`) REFERENCES `appointment`(`appoid`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notifications`
+--
+
+CREATE TABLE IF NOT EXISTS `notifications` (
+    `notification_id` INT AUTO_INCREMENT PRIMARY KEY,
+    `user_id` INT NOT NULL,
+    `user_type` ENUM('patient', 'doctor', 'admin') NOT NULL,
+    `title` VARCHAR(255) NOT NULL,
+    `message` TEXT NOT NULL,
+    `type` ENUM('appointment', 'prescription', 'medical_note', 'system', 'reminder') DEFAULT 'system',
+    `related_id` INT DEFAULT NULL COMMENT 'ID of related record (appointment_id, prescription_id, etc.)',
+    `is_read` TINYINT(1) DEFAULT 0 COMMENT '0=unread, 1=read',
+    `priority` ENUM('low', 'medium', 'high') DEFAULT 'medium',
+    `expiry_date` DATETIME DEFAULT NULL COMMENT 'When notification should expire',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `read_at` TIMESTAMP NULL DEFAULT NULL,
+    INDEX `idx_user` (`user_id`, `user_type`),
+    INDEX `idx_read_status` (`is_read`),
+    INDEX `idx_created_at` (`created_at`),
+    INDEX `idx_type` (`type`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
--- Add these tables to your existing SQL_Database_edoc.sql
-
-CREATE TABLE chat_logs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    user_role ENUM('doctor', 'patient', 'admin', 'guest') DEFAULT 'guest',
-    message TEXT NOT NULL,
-    response TEXT NOT NULL,
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_user_role (user_id, user_role),
-    INDEX idx_timestamp (timestamp)
-);
-
-CREATE TABLE chat_sessions (
-    session_id VARCHAR(255) PRIMARY KEY,
-    user_id INT,
-    user_role ENUM('doctor', 'patient', 'admin', 'guest'),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
--- Add these tables to your existing SQL_Database_edoc.sql
-
-CREATE TABLE IF NOT EXISTS prescriptions (
-    prescription_id INT AUTO_INCREMENT PRIMARY KEY,
-    patient_id INT NOT NULL,
-    doctor_id INT NOT NULL,
-    appointment_id INT,
-    prescription_date DATE NOT NULL,
-    medication_name VARCHAR(255) NOT NULL,
-    dosage VARCHAR(100) NOT NULL,
-    frequency VARCHAR(100) NOT NULL,
-    duration VARCHAR(100) NOT NULL,
-    instructions TEXT,
-    status ENUM('active', 'completed', 'cancelled') DEFAULT 'active',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (patient_id) REFERENCES patient(pid) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (doctor_id) REFERENCES doctor(docid) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (appointment_id) REFERENCES appointment(appoid) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB;
-
--- Table for medical notes
-CREATE TABLE IF NOT EXISTS medical_notes (
-    note_id INT AUTO_INCREMENT PRIMARY KEY,
-    patient_id INT NOT NULL,
-    doctor_id INT NOT NULL,
-    appointment_id INT,
-    note_date DATE NOT NULL,
-    note_type ENUM('diagnosis', 'observation', 'treatment', 'follow_up') DEFAULT 'observation',
-    note_text TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (patient_id) REFERENCES patient(pid) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (doctor_id) REFERENCES doctor(docid) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (appointment_id) REFERENCES appointment(appoid) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB;
