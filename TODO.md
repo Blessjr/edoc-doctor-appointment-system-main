@@ -1,2 +1,0 @@
-- [x] Edit img/icons/medical-record.svg to resize to 24x24
-- [x] Edit img/icons/prescription.svg to resize to 24x24
