@@ -32,6 +32,9 @@
         header("location: ../login.php");
     }
     
+    // Set Cameroon timezone
+    date_default_timezone_set('Africa/Douala');
+    
     include("../connection.php");
     $userrow = $database->query("select * from doctor where docemail='$useremail'");
     $userfetch=$userrow->fetch_assoc();
@@ -58,17 +61,17 @@
                                  <a href="../logout.php" ><input type="button" value="Déconnexion" class="logout-btn btn-primary-soft btn"></a>
                              </td>
                          </tr>
-                 </table>
+                     </table>
                  </td>
              </tr>
              <tr class="menu-row" >
                  <td class="menu-btn menu-icon-dashbord " >
-                     <a href="index.php" class="non-style-link-menu "><div><p class="menu-text">Tableau de bord</p></a></div></a>
+                     <a href="index.php" class="non-style-link-menu"><div><p class="menu-text">Tableau de bord</p></div></a>
                  </td>
              </tr>
              <tr class="menu-row">
                  <td class="menu-btn menu-icon-appoinment  ">
-                     <a href="appointment.php" class="non-style-link-menu"><div><p class="menu-text">Mes rendez-vous</p></a></div>
+                     <a href="appointment.php" class="non-style-link-menu"><div><p class="menu-text">Mes rendez-vous</p></div></a>
                  </td>
              </tr>
              
@@ -79,7 +82,7 @@
              </tr>
              <tr class="menu-row" >
                  <td class="menu-btn menu-icon-patient">
-                     <a href="patient.php" class="non-style-link-menu"><div><p class="menu-text">Mes patients</p></a></div>
+                     <a href="patient.php" class="non-style-link-menu"><div><p class="menu-text">Mes patients</p></div></a>
                  </td>
              </tr>
                              <!-- NEW: Create Prescription Option -->
@@ -97,7 +100,7 @@
                 </tr>
              <tr class="menu-row" >
                  <td class="menu-btn menu-icon-settings">
-                     <a href="settings.php" class="non-style-link-menu"><div><p class="menu-text">Paramètres</p></a></div>
+                     <a href="settings.php" class="non-style-link-menu"><div><p class="menu-text">Paramètres</p></div></a>
                  </td>
              </tr>
              
@@ -115,11 +118,10 @@
                     </td>
                     <td width="15%">
                         <p style="font-size: 14px;color: rgb(119, 119, 119);padding: 0;margin: 0;text-align: right;">
-                            Date d’aujourd’hui
+                            Date d'aujourd'hui
                         </p>
                         <p class="heading-sub12" style="padding: 0;margin: 0;">
                             <?php 
-                        date_default_timezone_set('Asia/Kolkata');
                         $today = date('Y-m-d');
                         echo $today;
                         $list110 = $database->query("select  * from  schedule where docid=$userid;");
@@ -148,12 +150,12 @@
                         <form action="" method="post">
                             <input type="date" name="sheduledate" id="date" class="input-text filter-container-items" style="margin: 0;width: 95%;">
                         </td>
-                    <td width="12%">
-                        <input type="submit"  name="filter" value=" Filtrer" class=" btn-primary-soft btn button-icon btn-filter"  style="padding: 15px; margin :0;width:100%">
+                        <td width="12%">
+                            <input type="submit"  name="filter" value=" Filtrer" class=" btn-primary-soft btn button-icon btn-filter"  style="padding: 15px; margin :0;width:100%">
                         </form>
-                    </td>
+                        </td>
                     </tr>
-                            </table>
+                        </table>
                         </center>
                     </td>
                 </tr>
@@ -189,9 +191,8 @@
                                     <center>
                                     <img src="../img/notfound.svg" width="25%">
                                     <br>
-                                    <p class="heading-main12" style="margin-left: 45px;font-size:20px;color:rgb(49, 49, 49)">Nous n’avons rien trouvé en rapport avec vos critères !</p>
-                                    <a class="non-style-link" href="schedule.php"><button  class="login-btn btn-primary-soft btn"  style="display: flex;justify-content: center;align-items: center;margin-left:20px;">&nbsp; Afficher toutes les séances &nbsp;</font></button>
-                                    </a>
+                                    <p class="heading-main12" style="margin-left: 45px;font-size:20px;color:rgb(49, 49, 49)">Nous n\'avons rien trouvé en rapport avec vos critères !</p>
+                                    <a href="schedule.php" class="non-style-link"><button type="button" class="login-btn btn-primary-soft btn" style="display: flex;justify-content: center;align-items: center;margin-left:20px;">&nbsp; Afficher toutes les séances &nbsp;</button></a>
                                     </center>
                                     <br><br><br><br>
                                     </td>
@@ -246,7 +247,7 @@
                             Vous voulez supprimer cet enregistrement<br>('.substr($nameget,0,40).').
                         </div>
                         <div style="display: flex;justify-content: center;">
-                        <a href="delete-session.php?id='.$id.'" class="non-style-link"><button  class="btn-primary btn"  style="display: flex;justify-content: center;align-items: center;margin:10px;padding:10px;"<font class="tn-in-text">&nbsp;Oui&nbsp;</font></button></a>&nbsp;&nbsp;&nbsp;
+                        <a href="delete-session.php?id='.$id.'" class="non-style-link"><button  class="btn-primary btn"  style="display: flex;justify-content: center;align-items: center;margin:10px;padding:10px;"><font class="tn-in-text">&nbsp;Oui&nbsp;</font></button></a>&nbsp;&nbsp;&nbsp;
                         <a href="schedule.php" class="non-style-link"><button  class="btn-primary btn"  style="display: flex;justify-content: center;align-items: center;margin:10px;padding:10px;"><font class="tn-in-text">&nbsp;&nbsp;Non&nbsp;&nbsp;</font></button></a>
                         </div>
                     </center>
@@ -354,17 +355,15 @@ echo '
                      </thead>
                      <tbody>';
                              
-                             $result= $database->query($sqlmain12);
-
-                             if($result->num_rows==0){
+                             if($result12->num_rows==0){
                                  echo '<tr>
-                                 <td colspan="7">
+                                 <td colspan="4">
                                  <br><br><br><br>
                                  <center>
                                  <img src="../img/notfound.svg" width="25%">
                                  <br>
-                                 <p class="heading-main12" style="margin-left: 45px;font-size:20px;color:rgb(49, 49, 49)">Nous n’avons rien trouvé en rapport avec vos critères !</p>
-                                 <a class="non-style-link" href="appointment.php"><button  class="login-btn btn-primary-soft btn"  style="display: flex;justify-content: center;align-items: center;margin-left:20px;">&nbsp; Afficher tous les rendez-vous &nbsp;</font></button>
+                                 <p class="heading-main12" style="margin-left: 45px;font-size:20px;color:rgb(49, 49, 49)">Nous n\'avons rien trouvé en rapport avec vos critères !</p>
+                                 <a class="non-style-link" href="appointment.php"><button class="login-btn btn-primary-soft btn"  style="display: flex;justify-content: center;align-items: center;margin-left:20px;">&nbsp; Afficher tous les rendez-vous &nbsp;</button>
                                  </a>
                                  </center>
                                  <br><br><br><br>
@@ -372,8 +371,8 @@ echo '
                                  </tr>';
                              }
                              else{
-                             for ( $x=0; $x<$result->num_rows;$x++){
-                                 $row=$result->fetch_assoc();
+                             for ( $x=0; $x<$result12->num_rows;$x++){
+                                 $row=$result12->fetch_assoc();
                                  $apponum=$row["apponum"];
                                  $pid=$row["pid"];
                                  $pname=$row["pname"];
@@ -383,7 +382,7 @@ echo '
                                     <td>'.substr($pid,0,15).'</td>
                                      <td style="font-weight:600;padding:25px">'.
                                      substr($pname,0,25)
-                                     .'</td >
+                                     .'</td>
                                      <td style="text-align:center;font-size:23px;font-weight:500; color: var(--btnnicetext);">
                                      '.$apponum.'
                                      </td>
@@ -410,6 +409,7 @@ echo '
 ';  
     }
 }
+
     ?>
     </div>
 

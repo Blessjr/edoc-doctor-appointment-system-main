@@ -291,6 +291,19 @@ ALTER TABLE `patient` ENGINE = InnoDB;
 ALTER TABLE `doctor` ENGINE = InnoDB;
 ALTER TABLE `appointment` ENGINE = InnoDB;
 
+-- Update the appointment table structure
+ALTER TABLE `appointment` 
+ADD COLUMN `start_time` TIME NULL AFTER `appodate`,
+ADD COLUMN `end_time` TIME NULL AFTER `start_time`,
+ADD COLUMN `status` ENUM('scheduled', 'completed', 'cancelled', 'in-progress') DEFAULT 'scheduled' AFTER `end_time`;
+
+-- Update existing appointments with reasonable time ranges
+UPDATE `appointment` 
+SET `start_time` = '09:00:00', 
+    `end_time` = '09:30:00',
+    `status` = 'scheduled'
+WHERE `start_time` IS NULL;
+
 -- --------------------------------------------------------
 
 --

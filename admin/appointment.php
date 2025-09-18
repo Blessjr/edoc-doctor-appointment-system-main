@@ -34,6 +34,9 @@ if(isset($_SESSION["user"])){
     header("location: ../login.php");
 }
 
+// Set Cameroon timezone
+date_default_timezone_set('Africa/Douala');
+
 //import database
 include("../connection.php");
 
@@ -106,15 +109,12 @@ include("../connection.php");
                     </p>
                     <p class="heading-sub12" style="padding: 0;margin: 0;">
                         <?php 
+                        $today = date('Y-m-d');
+                        echo $today;
 
-                    date_default_timezone_set('Asia/Kolkata');
+                        $list110 = $database->query("select  * from  appointment;");
 
-                    $today = date('Y-m-d');
-                    echo $today;
-
-                    $list110 = $database->query("select  * from  appointment;");
-
-                    ?>
+                        ?>
                     </p>
                 </td>
                 <td width="10%">
@@ -499,7 +499,7 @@ if($_GET){
                         </button>
                     </a>
                     </div>
-                </center>
+                    </center>
         </div>
         </div>
         ';
