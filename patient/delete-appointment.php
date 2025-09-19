@@ -16,16 +16,18 @@
         //import database
         include("../connection.php");
         $id=$_GET["id"];
-        //$result001= $database->query("select * from schedule where scheduleid=$id;");
-        //$email=($result001->fetch_assoc())["docemail"];
-        $sql= $database->query("delete from appointment where appoid='$id';");
-        $stmt = $database->prepare($sqlmain);
-        $stmt->bind_param("i",$id);
-        $stmt->execute();
-        //$sql= $database->query("delete from doctor where docemail='$email';");
-        //print_r($email);
-        header("location: appointment.php");
+        
+        // Simple delete query (make sure $id is properly validated/sanitized)
+        $sql = "DELETE FROM appointment WHERE appoid = '$id'";
+        $result = $database->query($sql);
+        
+        if($result){
+            header("location: appointment.php");
+            exit();
+        } else {
+            echo "Error deleting appointment: " . $database->error;
+            exit();
+        }
     }
-
 
 ?>

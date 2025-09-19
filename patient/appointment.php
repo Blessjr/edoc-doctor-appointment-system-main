@@ -32,7 +32,7 @@
             border-radius: 8px;
             font-size: 18px;
             font-weight: 600;
-            cursor: pointer;
+            cursor: button;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(74, 107, 223, 0.3);
         }
@@ -85,7 +85,7 @@
             color: white;
             padding: 8px 15px;
             border-radius: 5px;
-            cursor: pointer;
+            cursor: button;
             transition: background 0.3s ease;
         }
         

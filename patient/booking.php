@@ -160,15 +160,30 @@ $today = date('Y-m-d');
                                     $docemail=$row["docemail"];
                                     $scheduledate=$row["scheduledate"];
                                     $scheduletime=$row["scheduletime"];
+                                    $slot_duration = isset($row["slot_duration"]) ? $row["slot_duration"] : 30;
+                                    
                                     $sql2="select * from appointment where scheduleid=$id";
                                     $result12= $database->query($sql2);
                                     $apponum=($result12->num_rows)+1;
+
+                                    // Calculate appointment time based on appointment number
+                                    $start_time = new DateTime($scheduletime);
+                                    $minutes_to_add = ($apponum - 1) * $slot_duration;
+                                    $start_time->modify("+$minutes_to_add minutes");
+                                    
+                                    $end_time = clone $start_time;
+                                    $end_time->modify("+$slot_duration minutes");
+                                    
+                                    $appointment_start = $start_time->format('H:i:s');
+                                    $appointment_end = $end_time->format('H:i:s');
 
                                     echo '
                                         <form action="booking-complete.php" method="post">
                                             <input type="hidden" name="scheduleid" value="'.$scheduleid.'" >
                                             <input type="hidden" name="apponum" value="'.$apponum.'" >
                                             <input type="hidden" name="date" value="'.$today.'" >
+                                            <input type="hidden" name="start_time" value="'.$appointment_start.'" >
+                                            <input type="hidden" name="end_time" value="'.$appointment_end.'" >
                                             <tr>
                                             <td style="width:50%;" rowspan="2">
                                                 <div class="dashboard-items search-items">
@@ -181,8 +196,9 @@ $today = date('Y-m-d');
                                                         <div class="h3-search" style="font-size:18px;">
                                                             Titre de la session: '.$title.'<br>
                                                             Date prévue: '.$scheduledate.'<br>
-                                                            Heure de début: '.$scheduletime.'<br>
-                                                            Frais de consultation: <b>LKR.2 000.00</b>
+                                                            Heure de votre rendez-vous: <b>'.$appointment_start.' - '.$appointment_end.'</b><br>
+                                                            Durée: '.$slot_duration.' minutes<br>
+                                                            Frais de consultation: <b>XAF.2 000.00</b>
                                                         </div><br>
                                                     </div>
                                                 </div>

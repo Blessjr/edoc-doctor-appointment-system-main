@@ -304,6 +304,24 @@ SET `start_time` = '09:00:00',
     `status` = 'scheduled'
 WHERE `start_time` IS NULL;
 
+-- Add new columns to the schedule table for time slot management
+ALTER TABLE `schedule` 
+ADD COLUMN `slot_duration` INT DEFAULT 30 AFTER `nop`,
+ADD COLUMN `start_time` TIME NULL AFTER `scheduletime`,
+ADD COLUMN `end_time` TIME NULL AFTER `start_time`;
+
+-- Update existing schedules with reasonable time ranges
+UPDATE `schedule` 
+SET `start_time` = `scheduletime`,
+    `end_time` = ADDTIME(`scheduletime`, '01:00:00'),
+    `slot_duration` = 30
+WHERE `start_time` IS NULL;
+
+-- Modify the appointment table to store the actual time slot
+ALTER TABLE `appointment` 
+MODIFY COLUMN `start_time` TIME NOT NULL,
+MODIFY COLUMN `end_time` TIME NOT NULL;
+
 -- --------------------------------------------------------
 
 --

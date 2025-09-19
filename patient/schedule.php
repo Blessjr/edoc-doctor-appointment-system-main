@@ -183,13 +183,14 @@ $result= $database->query($sqlmain);
                                             $docname=$row["docname"];
                                             $scheduledate=$row["scheduledate"];
                                             $scheduletime=$row["scheduletime"];
+                                            $slot_duration = isset($row["slot_duration"]) ? $row["slot_duration"] : 30;
                                             if($scheduleid=="") break;
                                             echo '<td style="width:25%;">
                                                 <div class="dashboard-items search-items">
                                                     <div style="width:100%">
                                                         <div class="h1-search">'.substr($title,0,21).'</div><br>
                                                         <div class="h3-search">'.substr($docname,0,30).'</div>
-                                                        <div class="h4-search">'.$scheduledate.'<br>Démarre à: <b>@'.substr($scheduletime,0,5).'</b> (24h)</div><br>
+                                                        <div class="h4-search">'.$scheduledate.'<br>Démarre à: <b>@'.substr($scheduletime,0,5).'</b><br>Durée de consultation: <b>'.$slot_duration.' minutes</b></div><br>
                                                         <a href="booking.php?id='.$scheduleid.'"><button class="login-btn btn-primary-soft btn" style="padding:11px 0;width:100%">Réserver maintenant</button></a>
                                                     </div>
                                                 </div>
@@ -203,10 +204,10 @@ $result= $database->query($sqlmain);
                         </table>
                     </div>
                 </center>
-            </td>
-        </tr>
-    </table>
-</div>
+                </td>
+            </tr>
+        </table>
+    </div>
 </div>
 </body>
 </html>
